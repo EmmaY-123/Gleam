@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gleam Workspace</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="workspace-page">
+    <header class="site-header workspace-header" aria-label="Gleam workspace navigation">
+      <a class="brand" href="./index.html">Gleam</a>
+      <nav class="site-nav" aria-label="Workspace">
+        <a href="./index.html">Home</a>
+        <a href="./index.html#showcase">Inspiration</a>
+      </nav>
+      <div class="nav-actions">
+        <a class="ghost-button" href="./index.html">Back home</a>
+        <button class="small-dark-button js-create-board" type="button">New board</button>
+      </div>
+    </header>
+
+    <main class="workspace-shell">
+      <section id="editor" class="studio" aria-label="Gleam board editor">
+        <div class="studio-top">
+          <div class="background-tabs" id="backgroundTabs" aria-label="Choose background"></div>
+          <div class="toolbar">
+            <button type="button" data-layer="back">Send back</button>
+            <button type="button" data-layer="down">Down</button>
+            <button type="button" data-layer="up">Up</button>
+            <button type="button" data-layer="front">Bring front</button>
+            <button class="dark-tool" type="button" id="exportButton">Export high-res</button>
+          </div>
+        </div>
+
+        <div class="studio-body">
+          <section class="canvas-panel">
+            <div class="board-title-row">
+              <input id="boardTitle" aria-label="Board title" maxlength="54" />
+              <span id="saveStatus">Saved locally</span>
+            </div>
+            <div id="boardCanvas" class="board-canvas bg-wood-cork" aria-label="Vision board canvas">
+              <div class="empty-state" id="emptyState">
+                <h3>Upload your first picture.</h3>
+                <p>Then drag, resize, and layer it like a real wall board.</p>
+              </div>
+            </div>
+          </section>
+
+          <aside class="picture-tray" aria-label="Picture tray">
+            <label class="upload-zone">
+              <input id="imageUpload" type="file" accept="image/jpeg,image/png,image/webp" multiple />
+              <strong>Upload pictures</strong>
+              <span>JPG, PNG, WebP</span>
+            </label>
+            <div class="selected-panel" id="selectedPanel">
+              <p>Select a picture to resize or delete it.</p>
+            </div>
+            <div class="tray-grid" id="trayGrid"></div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

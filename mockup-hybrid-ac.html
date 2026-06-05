@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gleam A+C Hybrid</title>
+    <style>
+      :root {
+        --ink: #281f1a;
+        --cream: #fff4d2;
+        --yellow: #ffd85d;
+        --pink: #ff9abb;
+        --blue: #93dcff;
+        --mint: #a5dc9e;
+        --cork: #bf8c58;
+        --cork-deep: #7b4d2e;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+        background:
+          radial-gradient(circle at 18% 18%, rgba(255,154,187,.5), transparent 22%),
+          radial-gradient(circle at 86% 8%, rgba(147,220,255,.5), transparent 23%),
+          linear-gradient(180deg, #fff2c5 0%, #ffe4ee 46%, #dff7ff 100%);
+        overflow-x: hidden;
+      }
+      .page { max-width: 1320px; margin: 0 auto; padding: 28px; }
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
+      .logo {
+        font-family: "Marker Felt", "Comic Sans MS", cursive;
+        font-size: 42px;
+        rotate: -3deg;
+      }
+      .nav-links {
+        display: flex;
+        gap: 28px;
+        font-weight: 800;
+      }
+      .login {
+        border: 3px solid var(--ink);
+        border-radius: 999px;
+        background: white;
+        padding: 12px 20px;
+        box-shadow: 4px 4px 0 var(--ink);
+        font-weight: 900;
+      }
+      .hero {
+        position: relative;
+        min-height: 560px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+      }
+      h1 {
+        margin: 0 auto 22px;
+        max-width: 980px;
+        font-family: "Marker Felt", "Comic Sans MS", cursive;
+        font-size: clamp(62px, 8.5vw, 128px);
+        line-height: .83;
+        letter-spacing: 0;
+      }
+      .hero p {
+        margin: 0 auto 30px;
+        max-width: 720px;
+        font-size: 23px;
+      }
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        border: 4px solid var(--ink);
+        border-radius: 999px;
+        background: white;
+        padding: 18px 28px;
+        font-size: 20px;
+        font-weight: 900;
+        box-shadow: 8px 8px 0 var(--ink);
+      }
+      .doodle {
+        position: absolute;
+        font-family: "Marker Felt", "Comic Sans MS", cursive;
+        font-size: 28px;
+        rotate: var(--r);
+      }
+      .d1 { left: 2%; top: 20%; --r: -12deg; }
+      .d2 { right: 3%; top: 24%; --r: 11deg; }
+      .d3 { left: 13%; bottom: 11%; --r: 8deg; }
+      .d4 { right: 18%; bottom: 10%; --r: -8deg; }
+      .studio-card {
+        margin: -34px auto 52px;
+        border: 4px solid var(--ink);
+        border-radius: 30px;
+        background: #fff8de;
+        box-shadow: 12px 12px 0 var(--ink);
+        overflow: hidden;
+      }
+      .studio-top {
+        min-height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        border-bottom: 4px solid var(--ink);
+        background: var(--cream);
+      }
+      .tool-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+      .pill, .icon {
+        border: 3px solid var(--ink);
+        background: white;
+        border-radius: 999px;
+        min-height: 38px;
+        padding: 8px 14px;
+        font-weight: 900;
+      }
+      .icon { width: 42px; padding: 0; display: grid; place-items: center; }
+      .export { background: var(--yellow); }
+      .studio-body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 230px;
+        gap: 18px;
+        padding: 22px;
+      }
+      .board {
+        position: relative;
+        min-height: 530px;
+        border: 5px solid var(--cork-deep);
+        border-radius: 12px;
+        background:
+          radial-gradient(circle at 20% 25%, rgba(92,56,33,.32) 0 4px, transparent 5px),
+          radial-gradient(circle at 78% 62%, rgba(255,232,160,.4) 0 4px, transparent 5px),
+          repeating-linear-gradient(18deg, rgba(87,53,28,.13) 0 5px, transparent 5px 26px),
+          var(--cork);
+        box-shadow: inset 0 0 0 10px rgba(255,255,255,.12);
+        overflow: hidden;
+      }
+      .photo {
+        position: absolute;
+        border: 9px solid white;
+        box-shadow: 8px 9px 0 rgba(40,31,26,.65);
+      }
+      .p1 { left: 9%; top: 13%; width: 175px; height: 210px; background: var(--pink); rotate: -7deg; }
+      .p2 { left: 29%; top: 18%; width: 225px; height: 150px; background: var(--blue); rotate: 5deg; }
+      .p3 { left: 48%; top: 11%; width: 160px; height: 205px; background: var(--mint); rotate: 9deg; }
+      .p4 { left: 24%; top: 55%; width: 275px; height: 100px; background: #fff0a8; rotate: -3deg; }
+      .p5 { right: 8%; bottom: 13%; width: 188px; height: 160px; background: #ffc17e; rotate: 6deg; }
+      .tape {
+        position: absolute;
+        width: 76px;
+        height: 26px;
+        background: rgba(255,244,178,.75);
+        border: 2px solid rgba(40,31,26,.38);
+      }
+      .t1 { left: 11%; top: 10%; rotate: -8deg; }
+      .t2 { left: 35%; top: 15%; rotate: 12deg; }
+      .t3 { right: 13%; bottom: 27%; rotate: -10deg; }
+      .note {
+        position: absolute;
+        right: 9%;
+        top: 12%;
+        width: 170px;
+        padding: 18px;
+        border: 4px solid var(--ink);
+        background: #fff6c7;
+        box-shadow: 7px 7px 0 rgba(40,31,26,.65);
+        font-family: "Marker Felt", "Comic Sans MS", cursive;
+        font-size: 23px;
+        rotate: -4deg;
+      }
+      .tray {
+        display: grid;
+        align-content: start;
+        gap: 12px;
+      }
+      .tray h2 {
+        margin: 0;
+        font-family: "Marker Felt", "Comic Sans MS", cursive;
+        font-size: 30px;
+      }
+      .drop {
+        min-height: 130px;
+        display: grid;
+        place-items: center;
+        border: 4px dashed var(--ink);
+        border-radius: 20px;
+        background: white;
+        text-align: center;
+        font-weight: 900;
+      }
+      .thumbs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .thumb {
+        aspect-ratio: 1;
+        border: 4px solid var(--ink);
+        border-radius: 14px;
+        background: var(--blue);
+        box-shadow: 4px 4px 0 var(--ink);
+      }
+      .thumb:nth-child(2) { background: var(--pink); rotate: 3deg; }
+      .thumb:nth-child(3) { background: var(--mint); rotate: -4deg; }
+      .thumb:nth-child(4) { background: var(--yellow); }
+      .flow {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin: 0 0 34px;
+      }
+      .step {
+        border: 3px solid var(--ink);
+        border-radius: 999px;
+        background: white;
+        box-shadow: 4px 4px 0 var(--ink);
+        padding: 12px 16px;
+        font-weight: 900;
+      }
+      @media (max-width: 900px) {
+        .nav-links { display: none; }
+        .studio-body { grid-template-columns: 1fr; }
+        .hero { min-height: 480px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <nav class="nav">
+        <div class="logo">Gleam</div>
+        <div class="nav-links"><span>Boards</span><span>Ideas</span><span>Wallpapers</span></div>
+        <button class="login">Log in</button>
+      </nav>
+
+      <section class="hero">
+        <span class="doodle d1">✶ cork first</span>
+        <span class="doodle d2">♡ dream wall</span>
+        <span class="doodle d3">tape, drag, resize</span>
+        <span class="doodle d4">export big ↗</span>
+        <div>
+          <h1>Make your vision board feel handmade.</h1>
+          <p>A simple collage website for placing photos on a cork board, layering them like paper, and exporting a crisp wallpaper-ready image.</p>
+          <span class="cta">Create new board →</span>
+        </div>
+      </section>
+
+      <div class="flow">
+        <span class="step">create</span>
+        <span class="step">choose background</span>
+        <span class="step">upload pictures</span>
+        <span class="step">place freely</span>
+        <span class="step">resize + layer</span>
+        <span class="step">export</span>
+      </div>
+
+      <section class="studio-card">
+        <div class="studio-top">
+          <div class="tool-pills">
+            <span class="pill">wood cork</span>
+            <span class="pill">upload</span>
+            <span class="pill">bring front</span>
+            <span class="pill">send back</span>
+          </div>
+          <span class="pill export">export high-res</span>
+        </div>
+        <div class="studio-body">
+          <div class="board">
+            <span class="tape t1"></span><span class="tape t2"></span><span class="tape t3"></span>
+            <span class="photo p1"></span><span class="photo p2"></span><span class="photo p3"></span><span class="photo p4"></span><span class="photo p5"></span>
+            <div class="note">this year, softer but braver</div>
+          </div>
+          <aside class="tray">
+            <h2>Pictures</h2>
+            <div class="drop">Drop photos<br>or browse</div>
+            <div class="thumbs"><span class="thumb"></span><span class="thumb"></span><span class="thumb"></span><span class="thumb"></span></div>
+          </aside>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
