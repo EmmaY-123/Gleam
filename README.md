@@ -1,10 +1,14 @@
 # Gleam
 
-Gleam is a visual moodboard and vision board web app prototype. It gives users a calm landing page first, then moves them into a focused workspace where they can upload images, arrange a board, choose a background, adjust layering, and export the finished board.
+Gleam is a digital vision board generator for turning personal inspiration into a polished board users can save, export, and keep close as a wallpaper.
+
+Live site: [https://www.gleamup.asia/](https://www.gleamup.asia/)
 
 ## Why I Built This
 
-This project explores a product idea around personal visual planning: a digital version of the wall, corkboard, or collage people keep returning to. The goal was to make the experience feel more like arranging a tactile board than using a heavy design tool.
+I built Gleam because I love the idea of vision boards for visualizing goals, collecting mood references, and keeping intentions visible, but the physical process can be messy and time-consuming: finding pictures, printing them, cutting them out, and arranging them by hand.
+
+Gleam keeps the emotional ritual of making a board, but removes that friction. Users can upload photos, choose a background, freely place and resize images in the workspace, then export the finished board as something they can use as a laptop wallpaper or daily visual reminder.
 
 ## Current Features
 
@@ -79,3 +83,5 @@ npm test
 ## Notes
 
 This prototype currently saves boards locally in the browser. A backend would become useful for accounts, cross-device sync, shareable board links, cloud image storage, and multiple saved boards per user.
+
+Future scope includes AI-assisted layout, automatic background removal for uploaded photos, and mood-based generation of images, icons, stickers, and collage artifacts.
