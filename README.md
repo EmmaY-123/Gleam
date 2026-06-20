@@ -44,11 +44,11 @@ Workspace:
 
 ![Gleam workspace](docs/screenshots/2026-06-05-homepage-workspace-split-workspace.jpg)
 
-## Iteration Notes
+## Product Process
 
-The latest documented iteration is here:
+Design and product documentation:
 
-[Homepage + Workspace Split](docs/iterations/2026-06-05-homepage-workspace-split.md)
+[Homepage + Workspace Split Case Study](docs/iterations/2026-06-05-homepage-workspace-split.md)
 
 ## Run Locally
 
