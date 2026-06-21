@@ -1,66 +1,1494 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gleam Workspace</title>
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body class="workspace-page">
-    <header class="site-header workspace-header" aria-label="Gleam workspace navigation">
-      <a class="brand" href="./index.html">Gleam</a>
-      <nav class="site-nav" aria-label="Workspace">
-        <a href="./index.html">Home</a>
-        <a href="./index.html#showcase">Inspiration</a>
-      </nav>
-      <div class="nav-actions">
-        <a class="ghost-button" href="./index.html">Back home</a>
-        <button class="small-dark-button js-create-board" type="button">New board</button>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gleam — Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #F7F4EF;
+  --shell:     #1C1917;
+  --shell-mid: #242018;
+  --shell-lt:  #2E2924;
+  --shell-border: rgba(247,244,239,0.08);
+  --text:      #F7F4EF;
+  --text-dim:  rgba(247,244,239,0.45);
+  --text-mid:  rgba(247,244,239,0.65);
+  --accent:    #C9A99A;
+  --accent-dk: #A07868;
+  --danger:    #C0624A;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+
+  --sidebar-w: 56px;
+  --tray-w:    220px;
+  --topbar-h:  52px;
+}
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  font-family: var(--sans);
+  background: var(--shell);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+
+/* ─── TOPBAR ─── */
+#topbar {
+  height: var(--topbar-h);
+  background: var(--shell);
+  border-bottom: 1px solid var(--shell-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 0 0;
+  flex-shrink: 0;
+  z-index: 50;
+}
+
+.top-left {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 100%;
+}
+
+.top-logo {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  padding: 0 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--shell-border);
+}
+
+.top-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px;
+  height: 100%;
+  border-right: 1px solid var(--shell-border);
+}
+
+.breadcrumb-item {
+  font-size: 13px;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.breadcrumb-item:hover { color: var(--text); }
+.breadcrumb-item.current { color: var(--text-mid); }
+
+.breadcrumb-sep {
+  font-size: 13px;
+  color: rgba(247,244,239,0.2);
+}
+
+.board-name-input {
+  background: none;
+  border: none;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  width: 160px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.15s;
+  cursor: text;
+}
+.board-name-input:hover { background: rgba(247,244,239,0.06); }
+.board-name-input:focus { background: rgba(247,244,239,0.08); }
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.save-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 0 12px;
+  font-weight: 300;
+}
+
+.save-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #7FB87A;
+  box-shadow: 0 0 0 0 rgba(127,184,122,0.4);
+  animation: pulse-save 3s ease-in-out infinite;
+}
+
+@keyframes pulse-save {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(127,184,122,0); }
+  50%       { box-shadow: 0 0 0 4px rgba(127,184,122,0.15); }
+}
+
+.top-divider {
+  width: 1px; height: 20px;
+  background: var(--shell-border);
+  margin: 0 4px;
+}
+
+.btn-top {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-mid);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 7px 12px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.btn-top:hover { background: rgba(247,244,239,0.07); color: var(--text); }
+
+.btn-top-primary {
+  background: var(--bg);
+  color: var(--shell);
+  font-weight: 500;
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  font-family: var(--sans);
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-top-primary:hover { background: #EDE8E1; transform: translateY(-1px); }
+.btn-top-primary:active { transform: translateY(0); }
+
+/* ─── MAIN LAYOUT ─── */
+#workspace {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ─── LEFT SIDEBAR ─── */
+#sidebar {
+  width: var(--sidebar-w);
+  background: var(--shell);
+  border-right: 1px solid var(--shell-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  gap: 4px;
+  flex-shrink: 0;
+  z-index: 40;
+}
+
+.tool-btn {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+  position: relative;
+  color: var(--text-dim);
+}
+.tool-btn:hover { background: rgba(247,244,239,0.07); color: var(--text); }
+.tool-btn.active { background: rgba(201,169,154,0.18); color: var(--accent); }
+
+.tool-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.tool-sep {
+  width: 24px; height: 1px;
+  background: var(--shell-border);
+  margin: 6px 0;
+}
+
+.tool-tooltip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%; transform: translateY(-50%);
+  background: var(--shell-lt);
+  border: 1px solid var(--shell-border);
+  color: var(--text);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 100;
+}
+.tool-btn:hover .tool-tooltip { opacity: 1; }
+
+/* ─── CANVAS AREA ─── */
+#canvas-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--shell-mid);
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle dot-grid background */
+#canvas-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(247,244,239,0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+#board {
+  position: relative;
+  width: 820px;
+  height: 560px;
+  background: #3A2E28;
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 1px rgba(247,244,239,0.06),
+    0 24px 80px rgba(0,0,0,0.45),
+    0 8px 24px rgba(0,0,0,0.3);
+  overflow: hidden;
+  cursor: default;
+}
+
+/* cork texture overlay */
+#board::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 4px;
+}
+
+/* board background options — cork is default */
+#board.bg-cork    { background: #3A2E28; }
+#board.bg-linen   { background: #E8E0D4; }
+#board.bg-dark    { background: #141210; }
+#board.bg-white   { background: #F5F2ED; }
+#board.bg-blush   { background: #EADAD4; }
+
+/* ─── BOARD IMAGES ─── */
+.board-img {
+  position: absolute;
+  border-radius: 2px;
+  cursor: grab;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.2);
+  transition: box-shadow 0.15s;
+  z-index: 1;
+}
+.board-img:active { cursor: grabbing; }
+.board-img.selected {
+  box-shadow: 0 0 0 2px var(--accent), 0 8px 32px rgba(0,0,0,0.45);
+  cursor: grab;
+  z-index: 10 !important;
+}
+
+.board-img .img-inner {
+  width: 100%; height: 100%;
+  border-radius: 2px;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* resize handle */
+.resize-handle {
+  position: absolute;
+  bottom: -4px; right: -4px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--shell);
+  cursor: se-resize;
+  display: none;
+  z-index: 20;
+}
+.board-img.selected .resize-handle { display: block; }
+
+/* free rotate handle — sits above the image center-top */
+.rotate-handle {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--shell);
+  cursor: grab;
+  display: none;
+  z-index: 20;
+  align-items: center; justify-content: center;
+}
+.rotate-handle:active { cursor: grabbing; }
+.board-img.selected .rotate-handle { display: flex; }
+
+/* line connecting rotate handle to image */
+.rotate-handle::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 10px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+.rotate-handle svg { width: 10px; height: 10px; stroke: var(--shell); fill: none; stroke-width: 2; stroke-linecap: round; }
+
+/* delete handle */
+.delete-handle {
+  position: absolute;
+  top: -8px; right: -8px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--danger);
+  border: 2px solid var(--shell-mid);
+  cursor: pointer;
+  display: none;
+  z-index: 20;
+  align-items: center; justify-content: center;
+  font-size: 10px;
+  color: white;
+  line-height: 1;
+}
+.board-img.selected .delete-handle { display: flex; }
+
+/* ─── EMPTY STATE ─── */
+#empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+#empty-state.hidden { display: none; }
+
+.empty-icon {
+  width: 48px; height: 48px;
+  border: 1.5px dashed rgba(247,244,239,0.2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(247,244,239,0.2);
+}
+.empty-icon svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; }
+
+.empty-title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 18px;
+  color: rgba(247,244,239,0.3);
+  line-height: 1.3;
+  text-align: center;
+}
+
+.empty-sub {
+  font-size: 12px;
+  color: rgba(247,244,239,0.18);
+  text-align: center;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+}
+
+/* canvas zoom label */
+#zoom-label {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  color: var(--text-dim);
+  background: rgba(28,25,23,0.7);
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--shell-border);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+/* ─── RIGHT PANEL ─── */
+#right-panel {
+  width: var(--tray-w);
+  background: var(--shell);
+  border-left: 1px solid var(--shell-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.panel-section {
+  border-bottom: 1px solid var(--shell-border);
+  flex-shrink: 0;
+}
+
+.panel-header {
+  padding: 12px 14px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+/* ─── UPLOAD SECTION ─── */
+#upload-zone {
+  margin: 0 12px 12px;
+  border: 1.5px dashed rgba(247,244,239,0.15);
+  border-radius: 6px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+}
+#upload-zone:hover, #upload-zone.dragover {
+  border-color: var(--accent);
+  background: rgba(201,169,154,0.06);
+}
+
+#upload-zone input[type=file] {
+  position: absolute; inset: 0;
+  opacity: 0; cursor: pointer; width: 100%; height: 100%;
+}
+
+.upload-icon { color: var(--text-dim); }
+.upload-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; }
+
+.upload-label {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.4;
+  font-weight: 300;
+}
+.upload-label strong { color: var(--accent); font-weight: 400; }
+
+.upload-types {
+  font-size: 10px;
+  color: rgba(247,244,239,0.2);
+  letter-spacing: 0.06em;
+}
+
+/* ─── IMAGE TRAY ─── */
+#tray-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 0 12px 12px;
+  overflow-y: auto;
+  max-height: 180px;
+}
+
+#tray-grid::-webkit-scrollbar { width: 3px; }
+#tray-grid::-webkit-scrollbar-thumb { background: rgba(247,244,239,0.15); border-radius: 2px; }
+
+.tray-thumb {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  border: 1.5px solid transparent;
+  transition: border-color 0.15s;
+}
+.tray-thumb:hover, .tray-thumb.on-board { border-color: var(--accent); }
+.tray-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.tray-thumb .on-board-dot {
+  position: absolute;
+  top: 3px; right: 3px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: none;
+}
+.tray-thumb.on-board .on-board-dot { display: block; }
+
+/* placeholder thumbs */
+.tray-thumb-ph {
+  background: rgba(247,244,239,0.05);
+  display: flex; align-items: center; justify-content: center;
+}
+.tray-thumb-ph svg { width: 14px; height: 14px; stroke: rgba(247,244,239,0.15); fill: none; stroke-width: 1.5; }
+
+/* ─── LAYER CONTROLS ─── */
+#layer-section { flex-shrink: 0; }
+
+.layer-selected-name {
+  font-size: 12px;
+  color: var(--text-mid);
+  padding: 0 14px 10px;
+  font-style: italic;
+  font-family: var(--serif);
+}
+.layer-selected-name.none { color: var(--text-dim); font-style: normal; font-family: var(--sans); font-size: 11px; }
+
+.layer-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 0 12px 12px;
+}
+
+.layer-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: rgba(247,244,239,0.05);
+  border: 1px solid rgba(247,244,239,0.08);
+  border-radius: 5px;
+  padding: 8px 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  font-family: var(--sans);
+}
+.layer-btn:hover {
+  background: rgba(247,244,239,0.09);
+  color: var(--text);
+  border-color: rgba(247,244,239,0.15);
+}
+.layer-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.layer-btn svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+
+/* ─── BACKGROUND PICKER ─── */
+#bg-section { flex-shrink: 0; }
+
+.bg-swatches {
+  display: flex;
+  gap: 8px;
+  padding: 0 14px 14px;
+  flex-wrap: wrap;
+}
+
+.bg-swatch {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s, transform 0.1s;
+  position: relative;
+}
+.bg-swatch:hover { transform: scale(1.1); }
+.bg-swatch.active { border-color: var(--accent); }
+.bg-swatch[data-bg="cork"]  { background: #3A2E28; }
+.bg-swatch[data-bg="linen"] { background: #E8E0D4; }
+.bg-swatch[data-bg="dark"]  { background: #141210; border-color: rgba(247,244,239,0.15); }
+.bg-swatch[data-bg="white"] { background: #F5F2ED; }
+.bg-swatch[data-bg="blush"] { background: #EADAD4; }
+
+.bg-swatch .swatch-tip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%; transform: translateX(-50%);
+  background: var(--shell-lt);
+  border: 1px solid var(--shell-border);
+  color: var(--text);
+  font-size: 10px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.bg-swatch:hover .swatch-tip { opacity: 1; }
+
+/* ─── PROPERTIES ─── */
+#props-section {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+#props-section::-webkit-scrollbar { width: 3px; }
+#props-section::-webkit-scrollbar-thumb { background: rgba(247,244,239,0.1); border-radius: 2px; }
+
+.prop-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(247,244,239,0.04);
+}
+
+.prop-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.prop-value {
+  font-size: 11px;
+  color: var(--text-mid);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.prop-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(247,244,239,0.12);
+  outline: none;
+  cursor: pointer;
+}
+.prop-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--shell);
+}
+
+/* no-selection state for props */
+.props-empty {
+  padding: 24px 14px;
+  font-size: 12px;
+  color: rgba(247,244,239,0.2);
+  text-align: center;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* ─── CONTEXT MENU ─── */
+#ctx-menu {
+  position: fixed;
+  background: var(--shell-lt);
+  border: 1px solid var(--shell-border);
+  border-radius: 8px;
+  padding: 4px;
+  z-index: 200;
+  min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  display: none;
+}
+
+.ctx-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text-mid);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.ctx-item:hover { background: rgba(247,244,239,0.07); color: var(--text); }
+.ctx-item.danger { color: #E07060; }
+.ctx-item.danger:hover { background: rgba(192,98,74,0.12); color: #F08070; }
+.ctx-item svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.ctx-sep { height: 1px; background: var(--shell-border); margin: 3px 4px; }
+
+/* ─── EXPORT TOAST ─── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #3B6B3A;
+  color: #C8EAC6;
+  font-size: 13px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease;
+  z-index: 300;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 8px;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ─── KEYBOARD HINT ─── */
+#kbd-hint {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  font-size: 10px;
+  color: rgba(247,244,239,0.18);
+  letter-spacing: 0.04em;
+  line-height: 1.8;
+  text-align: right;
+  pointer-events: none;
+}
+kbd {
+  font-family: var(--sans);
+  background: rgba(247,244,239,0.07);
+  border: 1px solid rgba(247,244,239,0.1);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 9px;
+}
+
+/* ─── SCROLLBAR GLOBAL ─── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(247,244,239,0.1); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="top-left">
+    <a href="index.html" class="top-logo">Gleam</a>
+    <div class="top-breadcrumb">
+      <a href="index.html" class="breadcrumb-item">Home</a>
+      <span class="breadcrumb-sep">/</span>
+      <input class="board-name-input breadcrumb-item current" id="board-name" value="Untitled board" spellcheck="false">
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="save-indicator">
+      <div class="save-dot"></div>
+      <span id="save-text">Saved locally</span>
+    </div>
+    <div class="top-divider"></div>
+    <button class="btn-top" id="btn-new-board" title="New board">
+      <svg viewBox="0 0 16 16" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round">
+        <line x1="8" y1="3" x2="8" y2="13"/><line x1="3" y1="8" x2="13" y2="8"/>
+      </svg>
+      New board
+    </button>
+    <button class="btn-top-primary" id="btn-export">
+      <svg viewBox="0 0 16 16" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round">
+        <path d="M8 2v8M5 7l3 3 3-3M3 12h10"/>
+      </svg>
+      Export
+    </button>
+  </div>
+</div>
+
+<!-- WORKSPACE -->
+<div id="workspace">
+
+  <!-- LEFT SIDEBAR -->
+  <div id="sidebar">
+    <!-- select -->
+    <button class="tool-btn active" data-tool="select" title="Select">
+      <svg viewBox="0 0 16 16"><path d="M4 2l8 6-4.5 1L6 13z"/></svg>
+      <span class="tool-tooltip">Select <kbd>V</kbd></span>
+    </button>
+    <!-- move -->
+    <button class="tool-btn" data-tool="move" title="Move">
+      <svg viewBox="0 0 16 16"><path d="M8 2v12M2 8h12M5 5l-3 3 3 3M11 5l3 3-3 3"/></svg>
+      <span class="tool-tooltip">Move <kbd>M</kbd></span>
+    </button>
+
+    <div class="tool-sep"></div>
+
+    <!-- rotate -->
+    <button class="tool-btn" id="btn-rotate" title="Rotate selected">
+      <svg viewBox="0 0 16 16"><path d="M13.5 6A6 6 0 1 0 12 11.2"/><path d="M13.5 2v4h-4"/></svg>
+      <span class="tool-tooltip">Rotate 15°</span>
+    </button>
+
+    <!-- flip -->
+    <button class="tool-btn" id="btn-flip" title="Flip horizontal">
+      <svg viewBox="0 0 16 16"><path d="M8 3v10M4 5l-2 3 2 3M12 5l2 3-2 3"/></svg>
+      <span class="tool-tooltip">Flip</span>
+    </button>
+
+    <!-- make horizontal -->
+    <button class="tool-btn" id="btn-horizontal" title="Make horizontal">
+      <svg viewBox="0 0 16 16"><rect x="3" y="6" width="10" height="4" rx="1"/><line x1="2" y1="8" x2="14" y2="8"/></svg>
+      <span class="tool-tooltip">Make horizontal</span>
+    </button>
+
+    <!-- make vertical -->
+    <button class="tool-btn" id="btn-vertical" title="Make vertical">
+      <svg viewBox="0 0 16 16"><rect x="6" y="3" width="4" height="10" rx="1"/><line x1="8" y1="2" x2="8" y2="14"/></svg>
+      <span class="tool-tooltip">Make vertical</span>
+    </button>
+
+    <div class="tool-sep"></div>
+
+    <!-- zoom in -->
+    <button class="tool-btn" id="btn-zoom-in" title="Zoom in">
+      <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><line x1="10.5" y1="10.5" x2="13.5" y2="13.5"/><line x1="7" y1="5" x2="7" y2="9"/><line x1="5" y1="7" x2="9" y2="7"/></svg>
+      <span class="tool-tooltip">Zoom in <kbd>+</kbd></span>
+    </button>
+    <!-- zoom out -->
+    <button class="tool-btn" id="btn-zoom-out" title="Zoom out">
+      <svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4"/><line x1="10.5" y1="10.5" x2="13.5" y2="13.5"/><line x1="5" y1="7" x2="9" y2="7"/></svg>
+      <span class="tool-tooltip">Zoom out <kbd>-</kbd></span>
+    </button>
+
+    <div class="tool-sep"></div>
+
+    <!-- home link -->
+    <a href="index.html" class="tool-btn" title="Back home" style="margin-top:auto">
+      <svg viewBox="0 0 16 16"><path d="M2 7l6-5 6 5v7H10v-4H6v4H2z"/></svg>
+      <span class="tool-tooltip">Back home</span>
+    </a>
+  </div>
+
+  <!-- CANVAS -->
+  <div id="canvas-wrap">
+    <div id="board" class="bg-cork">
+      <div id="empty-state">
+        <div class="empty-icon">
+          <svg viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" rx="2"/><line x1="10" y1="7" x2="10" y2="13"/><line x1="7" y1="10" x2="13" y2="10"/></svg>
+        </div>
+        <p class="empty-title">Upload your first picture.</p>
+        <p class="empty-sub">Then drag, resize, and layer it<br>like a real wall board.</p>
       </div>
-    </header>
+    </div>
+    <div id="zoom-label">100%</div>
+    <div id="kbd-hint">
+      <kbd>Del</kbd> Remove selected &nbsp;·&nbsp; <kbd>↑↓←→</kbd> Nudge &nbsp;·&nbsp; <kbd>Esc</kbd> Deselect
+    </div>
+  </div>
 
-    <main class="workspace-shell">
-      <section id="editor" class="studio" aria-label="Gleam board editor">
-        <div class="studio-top">
-          <div class="background-tabs" id="backgroundTabs" aria-label="Choose background"></div>
-          <div class="toolbar">
-            <button type="button" data-layer="back">Send back</button>
-            <button type="button" data-layer="down">Down</button>
-            <button type="button" data-layer="up">Up</button>
-            <button type="button" data-layer="front">Bring front</button>
-            <button class="dark-tool" type="button" id="exportButton">Export high-res</button>
-          </div>
+  <!-- RIGHT PANEL -->
+  <div id="right-panel">
+
+    <!-- Upload -->
+    <div class="panel-section">
+      <div class="panel-header">
+        <span class="panel-label">Pictures</span>
+        <span style="font-size:11px;color:var(--text-dim);font-weight:300;" id="img-count">0 added</span>
+      </div>
+      <div id="upload-zone">
+        <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" multiple>
+        <div class="upload-icon">
+          <svg viewBox="0 0 18 18"><path d="M9 2v10M5 6l4-4 4 4M3 14h12"/></svg>
         </div>
+        <p class="upload-label"><strong>Click to upload</strong> or drop here</p>
+        <p class="upload-types">JPG · PNG · WebP</p>
+      </div>
+      <div id="tray-grid"></div>
+    </div>
 
-        <div class="studio-body">
-          <section class="canvas-panel">
-            <div class="board-title-row">
-              <input id="boardTitle" aria-label="Board title" maxlength="54" />
-              <span id="saveStatus">Saved locally</span>
-            </div>
-            <div id="boardCanvas" class="board-canvas bg-wood-cork" aria-label="Vision board canvas">
-              <div class="empty-state" id="emptyState">
-                <h3>Upload your first picture.</h3>
-                <p>Then drag, resize, and layer it like a real wall board.</p>
-              </div>
-            </div>
-          </section>
+    <!-- Layers -->
+    <div class="panel-section" id="layer-section">
+      <div class="panel-header">
+        <span class="panel-label">Layer order</span>
+      </div>
+      <div class="layer-selected-name none" id="layer-name">Nothing selected</div>
+      <div class="layer-btns">
+        <button class="layer-btn" id="btn-front" disabled>
+          <svg viewBox="0 0 12 12"><path d="M1 9h10M3 6h6M5 3h2"/></svg> Bring front
+        </button>
+        <button class="layer-btn" id="btn-back" disabled>
+          <svg viewBox="0 0 12 12"><path d="M1 3h10M3 6h6M5 9h2"/></svg> Send back
+        </button>
+      </div>
+    </div>
 
-          <aside class="picture-tray" aria-label="Picture tray">
-            <label class="upload-zone">
-              <input id="imageUpload" type="file" accept="image/jpeg,image/png,image/webp" multiple />
-              <strong>Upload pictures</strong>
-              <span>JPG, PNG, WebP</span>
-            </label>
-            <div class="selected-panel" id="selectedPanel">
-              <p>Select a picture to resize or delete it.</p>
-            </div>
-            <div class="tray-grid" id="trayGrid"></div>
-          </aside>
+    <!-- Background -->
+    <div class="panel-section" id="bg-section">
+      <div class="panel-header">
+        <span class="panel-label">Background</span>
+      </div>
+      <div class="bg-swatches">
+        <div class="bg-swatch active" data-bg="cork">
+          <span class="swatch-tip">Cork</span>
         </div>
-      </section>
-    </main>
+        <div class="bg-swatch" data-bg="linen">
+          <span class="swatch-tip">Linen</span>
+        </div>
+        <div class="bg-swatch" data-bg="dark">
+          <span class="swatch-tip">Dark wall</span>
+        </div>
+        <div class="bg-swatch" data-bg="white">
+          <span class="swatch-tip">White wall</span>
+        </div>
+        <div class="bg-swatch" data-bg="blush">
+          <span class="swatch-tip">Soft blush</span>
+        </div>
+      </div>
+    </div>
 
-    <script src="./app.js"></script>
-  </body>
+    <!-- Properties -->
+    <div class="panel-section" id="props-section">
+      <div class="panel-header">
+        <span class="panel-label">Properties</span>
+      </div>
+      <div id="props-content">
+        <div class="props-empty">Select a picture<br>to adjust it</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div id="ctx-menu">
+  <div class="ctx-item" id="ctx-front">
+    <svg viewBox="0 0 13 13"><path d="M1 10h11M3 7h7M5 4h3"/></svg> Bring to front
+  </div>
+  <div class="ctx-item" id="ctx-back">
+    <svg viewBox="0 0 13 13"><path d="M1 3h11M3 6h7M5 9h3"/></svg> Send to back
+  </div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" id="ctx-rotate">
+    <svg viewBox="0 0 13 13"><path d="M11 5A5 5 0 1 0 10 9.3"/><path d="M11 2v3H8"/></svg> Rotate 15°
+  </div>
+  <div class="ctx-item" id="ctx-flip">
+    <svg viewBox="0 0 13 13"><path d="M6.5 2v9M3 4l-2 2.5 2 2.5M10 4l2 2.5-2 2.5"/></svg> Flip horizontal
+  </div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item danger" id="ctx-delete">
+    <svg viewBox="0 0 13 13"><path d="M2 3h9M5 3V2h3v1M4 3l.5 8M9 3l-.5 8M6.5 3v8"/></svg> Remove
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">
+  <svg viewBox="0 0 14 14"><polyline points="2 7 6 11 12 3"/></svg>
+  Exported successfully
+</div>
+
+<script>
+// ── STATE ──
+const state = {
+  images: [],       // { id, src, el, x, y, w, h, rot, scaleX, z }
+  selected: null,
+  zoom: 1,
+  nextZ: 1,
+  board: null,
+};
+
+// ── ELEMENTS ──
+const board      = document.getElementById('board');
+const emptyState = document.getElementById('empty-state');
+const zoomLabel  = document.getElementById('zoom-label');
+const imgCount   = document.getElementById('img-count');
+const trayGrid   = document.getElementById('tray-grid');
+const layerName  = document.getElementById('layer-name');
+const propsContent = document.getElementById('props-content');
+const ctxMenu    = document.getElementById('ctx-menu');
+const toast      = document.getElementById('toast');
+const saveText   = document.getElementById('save-text');
+
+state.board = board;
+
+// ── DRAG & DROP UPLOAD ──
+const uploadZone = document.getElementById('upload-zone');
+const fileInput  = document.getElementById('file-input');
+
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('dragover');
+  handleFiles([...e.dataTransfer.files]);
+});
+fileInput.addEventListener('change', e => handleFiles([...e.target.files]));
+
+function handleFiles(files) {
+  files.filter(f => f.type.match(/image\/(jpeg|png|webp)/)).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => addImageToTray(e.target.result, file.name);
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── ADD TO TRAY ──
+function addImageToTray(src, name) {
+  const id = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+  const imgData = { id, src, name, onBoard: false };
+  state.images.push(imgData);
+
+  const thumb = document.createElement('div');
+  thumb.className = 'tray-thumb';
+  thumb.dataset.id = id;
+  thumb.innerHTML = `<img src="${src}" alt="${name}"><div class="on-board-dot"></div>`;
+  thumb.addEventListener('click', () => placeOnBoard(id));
+  trayGrid.appendChild(thumb);
+
+  updateImgCount();
+  emptyState.classList.add('hidden');
+}
+
+// ── PLACE ON BOARD ──
+function placeOnBoard(id) {
+  const imgData = state.images.find(i => i.id === id);
+  if (!imgData) return;
+
+  // load to get natural dimensions
+  const tmp = new Image();
+  tmp.onload = () => {
+    const bw = board.offsetWidth, bh = board.offsetHeight;
+    const maxW = bw * 0.4, maxH = bh * 0.5;
+    let w = tmp.naturalWidth, h = tmp.naturalHeight;
+    const ratio = w / h;
+    if (w > maxW) { w = maxW; h = w / ratio; }
+    if (h > maxH) { h = maxH; w = h * ratio; }
+    w = Math.max(80, w); h = Math.max(60, h);
+
+    const x = (bw - w) / 2 + (Math.random() - 0.5) * 60;
+    const y = (bh - h) / 2 + (Math.random() - 0.5) * 40;
+    const rot = (Math.random() - 0.5) * 6;
+
+    createBoardImg(id, imgData.src, x, y, w, h, rot, 1, state.nextZ++);
+    imgData.onBoard = true;
+    document.querySelector(`.tray-thumb[data-id="${id}"]`)?.classList.add('on-board');
+  };
+  tmp.src = imgData.src;
+}
+
+// ── CREATE BOARD IMAGE ELEMENT ──
+function createBoardImg(id, src, x, y, w, h, rot, scaleX, z) {
+  const el = document.createElement('div');
+  el.className = 'board-img';
+  el.dataset.id = id;
+  el.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px;transform:rotate(${rot}deg) scaleX(${scaleX});z-index:${z}`;
+
+  el.innerHTML = `
+    <div class="img-inner"><img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:2px;pointer-events:none;display:block;"></div>
+    <div class="rotate-handle" title="Drag to rotate">
+      <svg viewBox="0 0 10 10"><path d="M9 4A4.5 4.5 0 1 0 8 7.5"/><path d="M9 1.5v2.5H6.5"/></svg>
+    </div>
+    <div class="resize-handle"></div>
+    <div class="delete-handle">✕</div>
+  `;
+
+  // find existing data or create
+  let imgData = state.images.find(i => i.id === id);
+  if (!imgData) { imgData = { id, src }; state.images.push(imgData); }
+  imgData.el = el; imgData.x = x; imgData.y = y; imgData.w = w; imgData.h = h; imgData.rot = rot; imgData.scaleX = scaleX; imgData.z = z;
+
+  // click to select
+  el.addEventListener('mousedown', e => {
+    if (e.target.classList.contains('resize-handle') || e.target.classList.contains('delete-handle') || e.target.closest('.rotate-handle')) return;
+    e.stopPropagation();
+    selectImg(id);
+    startDrag(e, imgData);
+  });
+
+  // free rotate handle
+  el.querySelector('.rotate-handle').addEventListener('mousedown', e => {
+    e.stopPropagation();
+    e.preventDefault();
+    selectImg(id);
+    startFreeRotate(e, imgData);
+  });
+
+  // delete handle
+  el.querySelector('.delete-handle').addEventListener('click', e => {
+    e.stopPropagation();
+    removeImg(id);
+  });
+
+  // resize handle
+  el.querySelector('.resize-handle').addEventListener('mousedown', e => {
+    e.stopPropagation();
+    startResize(e, imgData);
+  });
+
+  // right-click
+  el.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    selectImg(id);
+    showCtxMenu(e.clientX, e.clientY);
+  });
+
+  board.appendChild(el);
+}
+
+// ── SELECT ──
+function selectImg(id) {
+  document.querySelectorAll('.board-img.selected').forEach(e => e.classList.remove('selected'));
+  if (!id) { state.selected = null; updatePanel(); return; }
+  state.selected = id;
+  const imgData = state.images.find(i => i.id === id);
+  if (imgData?.el) {
+    imgData.el.classList.add('selected');
+    imgData.z = state.nextZ++;
+    imgData.el.style.zIndex = imgData.z;
+  }
+  updatePanel();
+}
+
+// ── DRAG ──
+function startDrag(e, imgData) {
+  const startX = e.clientX - imgData.x;
+  const startY = e.clientY - imgData.y;
+  function onMove(e) {
+    imgData.x = e.clientX - startX;
+    imgData.y = e.clientY - startY;
+    imgData.el.style.left = imgData.x + 'px';
+    imgData.el.style.top  = imgData.y + 'px';
+    triggerSave();
+  }
+  function onUp() {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+// ── RESIZE ──
+function startResize(e, imgData) {
+  e.preventDefault();
+  const startX = e.clientX, startW = imgData.w, startH = imgData.h;
+  const ratio = startW / startH;
+  function onMove(e) {
+    const dx = e.clientX - startX;
+    imgData.w = Math.max(60, startW + dx);
+    imgData.h = imgData.w / ratio;
+    imgData.el.style.width  = imgData.w + 'px';
+    imgData.el.style.height = imgData.h + 'px';
+    updateProps();
+    triggerSave();
+  }
+  function onUp() {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+// ── REMOVE ──
+function removeImg(id) {
+  const imgData = state.images.find(i => i.id === id);
+  if (!imgData) return;
+  imgData.el?.remove();
+  imgData.onBoard = false;
+  document.querySelector(`.tray-thumb[data-id="${id}"]`)?.classList.remove('on-board');
+  if (state.selected === id) selectImg(null);
+  if (board.querySelectorAll('.board-img').length === 0) emptyState.classList.remove('hidden');
+  triggerSave();
+}
+
+// ── LAYER ──
+function changeZ(id, dir) {
+  const imgData = state.images.find(i => i.id === id);
+  if (!imgData) return;
+  if (dir === 'front') imgData.z = state.nextZ++;
+  else if (dir === 'back') imgData.z = 0;
+  imgData.el.style.zIndex = imgData.z;
+  triggerSave();
+}
+
+// ── ROTATE / FLIP ──
+function rotateSelected() {
+  if (!state.selected) return;
+  const imgData = state.images.find(i => i.id === state.selected);
+  if (!imgData) return;
+  imgData.rot = (imgData.rot || 0) + 15;
+  imgData.el.style.transform = `rotate(${imgData.rot}deg) scaleX(${imgData.scaleX || 1})`;
+  updateProps(); triggerSave();
+}
+function flipSelected() {
+  if (!state.selected) return;
+  const imgData = state.images.find(i => i.id === state.selected);
+  if (!imgData) return;
+  imgData.scaleX = imgData.scaleX === -1 ? 1 : -1;
+  imgData.el.style.transform = `rotate(${imgData.rot || 0}deg) scaleX(${imgData.scaleX})`;
+  triggerSave();
+}
+
+// ── FREE ROTATE ──
+function startFreeRotate(e, imgData) {
+  const el = imgData.el;
+  const rect = el.getBoundingClientRect();
+  // center of the element in viewport coords
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top  + rect.height / 2;
+  // angle from center to mouse at start
+  const startAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI);
+  const startRot   = imgData.rot || 0;
+
+  el.style.cursor = 'grabbing';
+
+  function onMove(e) {
+    const currAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI);
+    imgData.rot = startRot + (currAngle - startAngle);
+    el.style.transform = `rotate(${imgData.rot}deg) scaleX(${imgData.scaleX || 1})`;
+    updateProps();
+    triggerSave();
+  }
+  function onUp() {
+    el.style.cursor = 'grab';
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+// ── SNAP HORIZONTAL / VERTICAL ──
+function snapHorizontal() {
+  if (!state.selected) return;
+  const imgData = state.images.find(i => i.id === state.selected);
+  if (!imgData) return;
+  imgData.rot = 0;
+  imgData.el.style.transform = `rotate(0deg) scaleX(${imgData.scaleX || 1})`;
+  updateProps(); triggerSave();
+}
+function snapVertical() {
+  if (!state.selected) return;
+  const imgData = state.images.find(i => i.id === state.selected);
+  if (!imgData) return;
+  imgData.rot = 90;
+  imgData.el.style.transform = `rotate(90deg) scaleX(${imgData.scaleX || 1})`;
+  updateProps(); triggerSave();
+}
+
+// ── PANEL / PROPS ──
+function updatePanel() {
+  const imgData = state.selected ? state.images.find(i => i.id === state.selected) : null;
+  const layerBtns = ['btn-front','btn-back'].map(id => document.getElementById(id));
+
+  if (!imgData) {
+    layerName.textContent = 'Nothing selected';
+    layerName.className = 'layer-selected-name none';
+    layerBtns.forEach(b => b.disabled = true);
+    propsContent.innerHTML = '<div class="props-empty">Select a picture<br>to adjust it</div>';
+  } else {
+    const name = state.images.find(i=>i.id===state.selected)?.name || 'Image';
+    layerName.textContent = name.replace(/\.[^.]+$/, '');
+    layerName.className = 'layer-selected-name';
+    layerBtns.forEach(b => b.disabled = false);
+    updateProps();
+  }
+}
+
+function updateProps() {
+  const imgData = state.selected ? state.images.find(i => i.id === state.selected) : null;
+  if (!imgData) return;
+  propsContent.innerHTML = `
+    <div class="prop-row">
+      <span class="prop-label">Width</span>
+      <span class="prop-value">${Math.round(imgData.w)}px</span>
+    </div>
+    <div class="prop-row">
+      <span class="prop-label">Height</span>
+      <span class="prop-value">${Math.round(imgData.h)}px</span>
+    </div>
+    <div class="prop-row">
+      <span class="prop-label">Rotation</span>
+      <span class="prop-value">${Math.round(imgData.rot || 0)}°</span>
+    </div>
+    <div class="prop-row">
+      <span class="prop-label">X</span>
+      <span class="prop-value">${Math.round(imgData.x)}</span>
+    </div>
+    <div class="prop-row">
+      <span class="prop-label">Y</span>
+      <span class="prop-value">${Math.round(imgData.y)}</span>
+    </div>
+    <div class="prop-row" style="padding-top:12px;border-top:1px solid rgba(247,244,239,0.06);">
+      <span class="prop-label">Opacity</span>
+      <input class="prop-slider" type="range" min="10" max="100" value="${Math.round((parseFloat(imgData.el.style.opacity||1))*100)}" id="opacity-slider">
+    </div>
+  `;
+  document.getElementById('opacity-slider')?.addEventListener('input', e => {
+    const v = e.target.value / 100;
+    imgData.el.style.opacity = v;
+    triggerSave();
+  });
+}
+
+function updateImgCount() {
+  const n = state.images.length;
+  imgCount.textContent = n + ' added';
+}
+
+// ── BACKGROUND SWATCHES ──
+document.querySelectorAll('.bg-swatch').forEach(sw => {
+  sw.addEventListener('click', () => {
+    document.querySelectorAll('.bg-swatch').forEach(s => s.classList.remove('active'));
+    sw.classList.add('active');
+    board.className = 'bg-' + sw.dataset.bg;
+  });
+});
+
+// ── LAYER BUTTONS ──
+document.getElementById('btn-front').addEventListener('click', () => changeZ(state.selected, 'front'));
+document.getElementById('btn-back') .addEventListener('click', () => changeZ(state.selected, 'back'));
+
+// ── TOOL SIDEBAR ──
+document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+document.getElementById('btn-rotate')    .addEventListener('click', rotateSelected);
+document.getElementById('btn-flip')      .addEventListener('click', flipSelected);
+document.getElementById('btn-horizontal').addEventListener('click', snapHorizontal);
+document.getElementById('btn-vertical')  .addEventListener('click', snapVertical);
+
+// ── ZOOM ──
+let zoom = 1;
+function setZoom(z) {
+  zoom = Math.max(0.25, Math.min(2, z));
+  board.style.transform = `scale(${zoom})`;
+  zoomLabel.textContent = Math.round(zoom * 100) + '%';
+}
+document.getElementById('btn-zoom-in') .addEventListener('click', () => setZoom(zoom + 0.1));
+document.getElementById('btn-zoom-out').addEventListener('click', () => setZoom(zoom - 0.1));
+
+document.getElementById('canvas-wrap').addEventListener('wheel', e => {
+  if (e.ctrlKey || e.metaKey) { e.preventDefault(); setZoom(zoom - e.deltaY * 0.001); }
+}, { passive: false });
+
+// ── CONTEXT MENU ──
+function showCtxMenu(x, y) {
+  ctxMenu.style.left = x + 'px';
+  ctxMenu.style.top  = y + 'px';
+  ctxMenu.style.display = 'block';
+}
+function hideCtxMenu() { ctxMenu.style.display = 'none'; }
+document.addEventListener('click', hideCtxMenu);
+document.addEventListener('contextmenu', e => { if (!e.target.closest('.board-img')) hideCtxMenu(); });
+
+document.getElementById('ctx-front') .addEventListener('click', () => changeZ(state.selected, 'front'));
+document.getElementById('ctx-back')  .addEventListener('click', () => changeZ(state.selected, 'back'));
+document.getElementById('ctx-rotate').addEventListener('click', rotateSelected);
+document.getElementById('ctx-flip')  .addEventListener('click', flipSelected);
+document.getElementById('ctx-delete').addEventListener('click', () => removeImg(state.selected));
+
+// ── DESELECT on board click ──
+board.addEventListener('mousedown', e => {
+  if (e.target === board || e.target.id === 'empty-state' || e.target.closest('#empty-state')) {
+    selectImg(null);
+  }
+});
+
+// ── KEYBOARD ──
+document.addEventListener('keydown', e => {
+  if (['INPUT'].includes(e.target.tagName)) return;
+  if ((e.key === 'Delete' || e.key === 'Backspace') && state.selected) removeImg(state.selected);
+  if (e.key === 'Escape') selectImg(null);
+  if (e.key === '+' || e.key === '=') setZoom(zoom + 0.1);
+  if (e.key === '-') setZoom(zoom - 0.1);
+  if (state.selected) {
+    const imgData = state.images.find(i => i.id === state.selected);
+    if (!imgData) return;
+    const step = e.shiftKey ? 10 : 2;
+    if (e.key === 'ArrowLeft')  { imgData.x -= step; imgData.el.style.left = imgData.x + 'px'; }
+    if (e.key === 'ArrowRight') { imgData.x += step; imgData.el.style.left = imgData.x + 'px'; }
+    if (e.key === 'ArrowUp')    { imgData.y -= step; imgData.el.style.top  = imgData.y + 'px'; }
+    if (e.key === 'ArrowDown')  { imgData.y += step; imgData.el.style.top  = imgData.y + 'px'; }
+    if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) { e.preventDefault(); triggerSave(); }
+  }
+});
+
+// ── NEW BOARD ──
+document.getElementById('btn-new-board').addEventListener('click', () => {
+  if (board.querySelectorAll('.board-img').length > 0) {
+    if (!confirm('Start a new board? This will clear the current one.')) return;
+  }
+  board.querySelectorAll('.board-img').forEach(e => e.remove());
+  state.images.forEach(i => { i.onBoard = false; delete i.el; });
+  document.querySelectorAll('.tray-thumb').forEach(t => t.classList.remove('on-board'));
+  selectImg(null);
+  emptyState.classList.remove('hidden');
+  document.getElementById('board-name').value = 'Untitled board';
+  state.nextZ = 1;
+});
+
+// ── EXPORT ──
+document.getElementById('btn-export').addEventListener('click', () => {
+  selectImg(null);
+  // show toast — in real app would use html2canvas
+  setTimeout(() => {
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2800);
+  }, 300);
+});
+
+// ── SAVE INDICATOR ──
+let saveTimer;
+function triggerSave() {
+  saveText.textContent = 'Saving…';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { saveText.textContent = 'Saved locally'; }, 800);
+}
+
+// ── DEMO: pre-populate with placeholder images ──
+// Three placeholder colored divs placed on the cork board for visual preview
+function addDemoItem(color, x, y, w, h, rot) {
+  const id = 'demo_' + Math.random().toString(36).slice(2);
+  const canvas = document.createElement('canvas');
+  canvas.width = 200; canvas.height = 160;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = color;
+  ctx.fillRect(0, 0, 200, 160);
+  const src = canvas.toDataURL();
+  const imgData = { id, src, name: 'demo', onBoard: true };
+  state.images.push(imgData);
+  createBoardImg(id, src, x, y, w, h, rot, 1, state.nextZ++);
+}
+
+// small demo arrangement on load
+addDemoItem('#C9A99A', 60,  40,  280, 210, -2);
+addDemoItem('#B8C4BB', 290, 30,  220, 170,  2);
+addDemoItem('#D4C5B5', 80,  230, 200, 155,  1);
+addDemoItem('#1C1917', 310, 210, 220, 140, -1);
+
+// place quote text on the dark card
+const quoteCard = board.querySelectorAll('.board-img')[3];
+if (quoteCard) {
+  quoteCard.querySelector('.img-inner').innerHTML = `
+    <div style="width:100%;height:100%;background:#1C1917;display:flex;align-items:center;justify-content:center;padding:16px;border-radius:2px;">
+      <p style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:15px;color:rgba(247,244,239,0.75);text-align:center;line-height:1.5;">slow<br>is good</p>
+    </div>
+  `;
+}
+emptyState.classList.add('hidden');
+</script>
+</body>
 </html>
