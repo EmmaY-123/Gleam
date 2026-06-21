@@ -993,7 +993,7 @@ kbd {
 <!-- TOAST -->
 <div id="toast">
   <svg viewBox="0 0 14 14"><polyline points="2 7 6 11 12 3"/></svg>
-  Exported successfully
+  <span id="toast-text">Exported successfully</span>
 </div>
 
 <script>
@@ -1016,6 +1016,7 @@ const layerName  = document.getElementById('layer-name');
 const propsContent = document.getElementById('props-content');
 const ctxMenu    = document.getElementById('ctx-menu');
 const toast      = document.getElementById('toast');
+const toastText  = document.getElementById('toast-text');
 const saveText   = document.getElementById('save-text');
 
 state.board = board;
@@ -1440,14 +1441,124 @@ document.getElementById('btn-new-board').addEventListener('click', () => {
   state.nextZ = 1;
 });
 
+function getBoardBackground() {
+  if (board.classList.contains('bg-linen')) return '#E8E0D4';
+  if (board.classList.contains('bg-dark')) return '#141210';
+  if (board.classList.contains('bg-white')) return '#F5F2ED';
+  if (board.classList.contains('bg-blush')) return '#EADAD4';
+  return '#3A2E28';
+}
+
+function slugifyFileName(value) {
+  return (value || 'gleam-board')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'gleam-board';
+}
+
+function drawWrappedText(ctx, text, maxWidth, lineHeight) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+
+  for (const word of words) {
+    const next = line ? `${line} ${word}` : word;
+    if (ctx.measureText(next).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
+  }
+  if (line) lines.push(line);
+
+  const startY = -((lines.length - 1) * lineHeight) / 2;
+  lines.forEach((item, index) => ctx.fillText(item, 0, startY + index * lineHeight));
+}
+
+function drawExportItem(ctx, item, scale) {
+  if (!item.el) return;
+  const x = item.x * scale;
+  const y = item.y * scale;
+  const w = item.w * scale;
+  const h = item.h * scale;
+  const rot = ((item.rot || 0) * Math.PI) / 180;
+  const scaleX = item.scaleX || 1;
+  const opacity = parseFloat(item.el.style.opacity || '1');
+  const img = item.el.querySelector('.img-inner img');
+  const text = item.el.querySelector('.img-inner')?.innerText?.trim();
+
+  ctx.save();
+  ctx.globalAlpha = Number.isFinite(opacity) ? opacity : 1;
+  ctx.translate(x + w / 2, y + h / 2);
+  ctx.rotate(rot);
+  ctx.scale(scaleX, 1);
+  ctx.shadowColor = 'rgba(0,0,0,0.22)';
+  ctx.shadowBlur = 10 * scale;
+  ctx.shadowOffsetY = 5 * scale;
+
+  if (img?.src) {
+    if (!img.complete || !img.naturalWidth) throw new Error('Export image is still loading');
+    ctx.drawImage(img, -w / 2, -h / 2, w, h);
+  } else {
+    const bg = item.el.querySelector('.img-inner > div')?.style?.background || '#1C1917';
+    ctx.fillStyle = bg;
+    ctx.fillRect(-w / 2, -h / 2, w, h);
+    if (text) {
+      ctx.shadowColor = 'transparent';
+      ctx.fillStyle = 'rgba(247,244,239,0.82)';
+      ctx.font = `${Math.max(18, Math.round(w * 0.11))}px "Cormorant Garamond", Georgia, serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      drawWrappedText(ctx, text, w * 0.72, Math.max(22, w * 0.12));
+    }
+  }
+  ctx.restore();
+}
+
+function exportBoard() {
+  selectImg(null);
+
+  const exportScale = 2;
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(board.offsetWidth * exportScale);
+  canvas.height = Math.round(board.offsetHeight * exportScale);
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = getBoardBackground();
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const items = state.images
+    .filter(item => item.el && item.onBoard !== false)
+    .sort((a, b) => (a.z || 0) - (b.z || 0));
+
+  for (const item of items) {
+    drawExportItem(ctx, item, exportScale);
+  }
+
+  const link = document.createElement('a');
+  link.download = `${slugifyFileName(document.getElementById('board-name').value)}.png`;
+  link.href = canvas.toDataURL('image/png');
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
+function showToast(message) {
+  toastText.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove('show'), 2800);
+}
+
 // ── EXPORT ──
 document.getElementById('btn-export').addEventListener('click', () => {
-  selectImg(null);
-  // show toast — in real app would use html2canvas
-  setTimeout(() => {
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2800);
-  }, 300);
+  try {
+    exportBoard();
+    showToast('Exported successfully');
+  } catch (error) {
+    console.error(error);
+    showToast('Export failed');
+  }
 });
 
 // ── SAVE INDICATOR ──
