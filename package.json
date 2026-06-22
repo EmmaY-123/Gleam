@@ -4,7 +4,16 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "node --test tests/gleam-core.test.mjs",
-    "check": "node --check app.js"
+    "check": "node --check app.js && node --check auth-nav.js && node --check boards.js && node --check login.js && node --check profile.js && node --check supabase-client.js && node --check workspace-sync.js"
+  },
+  "devDependencies": {
+    "vite": "^8.0.16"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.2"
   }
 }
