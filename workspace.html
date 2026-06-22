@@ -267,8 +267,8 @@ body {
 
 #board {
   position: relative;
-  width: 820px;
-  height: 560px;
+  width: 960px;
+  height: 540px;
   background: #3A2E28;
   border-radius: 4px;
   box-shadow:
@@ -793,7 +793,7 @@ kbd {
   <div class="top-left">
     <a href="index.html" class="top-logo">Gleam</a>
     <div class="top-breadcrumb">
-      <a href="index.html" class="breadcrumb-item">Home</a>
+      <a href="boards.html" class="breadcrumb-item">My boards</a>
       <span class="breadcrumb-sep">/</span>
       <input class="board-name-input breadcrumb-item current" id="board-name" value="Untitled board" spellcheck="false">
     </div>
@@ -877,9 +877,9 @@ kbd {
     <div class="tool-sep"></div>
 
     <!-- home link -->
-    <a href="index.html" class="tool-btn" title="Back home" style="margin-top:auto">
+    <a href="boards.html" class="tool-btn" title="Back to my boards" style="margin-top:auto">
       <svg viewBox="0 0 16 16"><path d="M2 7l6-5 6 5v7H10v-4H6v4H2z"/></svg>
-      <span class="tool-tooltip">Back home</span>
+      <span class="tool-tooltip">My boards</span>
     </a>
   </div>
 
@@ -1038,6 +1038,10 @@ uploadZone.addEventListener('drop', e => {
 fileInput.addEventListener('change', e => handleFiles([...e.target.files]));
 
 function handleFiles(files) {
+  if (window.gleamUploadFiles) {
+    window.gleamUploadFiles(files, addImageToTray);
+    return;
+  }
   files.filter(f => f.type.match(/image\/(jpeg|png|webp)/)).forEach(file => {
     const reader = new FileReader();
     reader.onload = e => addImageToTray(e.target.result, file.name);
@@ -1046,9 +1050,9 @@ function handleFiles(files) {
 }
 
 // ── ADD TO TRAY ──
-function addImageToTray(src, name) {
-  const id = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-  const imgData = { id, src, name, onBoard: false };
+function addImageToTray(src, name, imagePath, existingId) {
+  const id = existingId || 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+  const imgData = { id, src, name, imagePath, onBoard: false };
   state.images.push(imgData);
 
   const thumb = document.createElement('div');
@@ -1356,6 +1360,7 @@ document.querySelectorAll('.bg-swatch').forEach(sw => {
     document.querySelectorAll('.bg-swatch').forEach(s => s.classList.remove('active'));
     sw.classList.add('active');
     board.className = 'bg-' + sw.dataset.bg;
+    triggerSave();
   });
 });
 
@@ -1443,7 +1448,31 @@ document.getElementById('btn-new-board').addEventListener('click', () => {
   emptyState.classList.remove('hidden');
   document.getElementById('board-name').value = 'Untitled board';
   state.nextZ = 1;
+  triggerSave();
 });
+
+function clearBoard() {
+  board.querySelectorAll('.board-img').forEach(e => e.remove());
+  trayGrid.innerHTML = '';
+  state.images = [];
+  state.selected = null;
+  state.nextZ = 1;
+  emptyState.classList.remove('hidden');
+  updateImgCount();
+  updatePanel();
+}
+
+function getBackgroundClass() {
+  return [...board.classList].find(name => name.startsWith('bg-')) || 'bg-cork';
+}
+
+function setBackground(background) {
+  const cleanBackground = background?.startsWith('bg-') ? background : 'bg-cork';
+  board.className = cleanBackground;
+  document.querySelectorAll('.bg-swatch').forEach(swatch => {
+    swatch.classList.toggle('active', cleanBackground === 'bg-' + swatch.dataset.bg);
+  });
+}
 
 function getBoardBackground() {
   if (board.classList.contains('bg-linen')) return '#E8E0D4';
@@ -1571,6 +1600,7 @@ function triggerSave() {
   saveText.textContent = 'Saving…';
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => { saveText.textContent = 'Saved locally'; }, 800);
+  window.gleamWorkspaceChange?.();
 }
 
 // ── DEMO: pre-populate with placeholder images ──
@@ -1604,6 +1634,21 @@ if (quoteCard) {
   `;
 }
 emptyState.classList.add('hidden');
+
+window.gleamWorkspace = {
+  state,
+  board,
+  addImageToTray,
+  createBoardImg,
+  clearBoard,
+  getBackgroundClass,
+  setBackground,
+  showToast,
+  updateImgCount,
+  setSaveText(text) { saveText.textContent = text; },
+  onChange(callback) { window.gleamWorkspaceChange = callback; },
+};
 </script>
+<script type="module" src="workspace-sync.js"></script>
 </body>
 </html>

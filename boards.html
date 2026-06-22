@@ -92,21 +92,10 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
   font-size: 13px; color: var(--muted); font-weight: 300; margin-bottom: 4px;
 }
 
-/* ── FILTER ROW ── */
+/* ── CONTROLS ROW ── */
 .filter-row {
   display: flex; align-items: center; gap: 12px; margin-bottom: 32px;
   border-bottom: 1px solid var(--border); padding-bottom: 16px;
-}
-.filter-btn {
-  font-size: 13px; color: var(--muted); padding: 5px 14px;
-  border: 1px solid transparent; border-radius: 100px;
-  cursor: pointer; background: none; font-family: var(--sans);
-  transition: all 0.15s;
-}
-.filter-btn:hover { border-color: var(--border); color: var(--text); }
-.filter-btn.active {
-  background: var(--shell); color: var(--bg);
-  border-color: var(--shell); font-weight: 500;
 }
 .search-wrap {
   margin-left: auto;
@@ -151,7 +140,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
 }
 
 .board-preview {
-  aspect-ratio: 4/3;
+  aspect-ratio: 16/9;
   position: relative;
   overflow: hidden;
 }
@@ -167,6 +156,27 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
   position: absolute;
   border-radius: 2px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+  overflow: hidden;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+.bp-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bp-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(247,244,239,0.45);
+  font-family: var(--serif);
+  font-size: 18px;
 }
 
 .board-overlay {
@@ -175,6 +185,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
   display: flex; align-items: center; justify-content: center;
   gap: 10px;
   transition: background 0.2s;
+  z-index: 1000;
 }
 .board-card:hover .board-overlay { background: rgba(28,25,23,0.35); }
 
@@ -218,7 +229,6 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
   font-weight: 500; letter-spacing: 0.04em; white-space: nowrap;
   text-transform: uppercase;
 }
-.badge-local { background: var(--bg-mid); color: var(--muted); }
 .badge-saved { background: rgba(63,138,61,0.1); color: #3B6B3A; }
 
 .board-date {
@@ -227,47 +237,6 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
 
 .board-imgs-count {
   font-size: 12px; color: var(--muted); font-weight: 300; margin-top: 2px;
-}
-
-/* ── NEW BOARD CARD ── */
-.board-card-new {
-  background: var(--bg);
-  border-radius: 10px;
-  border: 1.5px dashed rgba(28,25,23,0.18);
-  overflow: hidden;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  display: flex; flex-direction: column;
-  text-decoration: none;
-}
-.board-card-new:hover {
-  border-color: var(--accent);
-  background: rgba(201,169,154,0.05);
-}
-.new-card-inner {
-  flex: 1;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 12px;
-  padding: 48px 24px;
-  min-height: 220px;
-}
-.new-icon {
-  width: 40px; height: 40px; border-radius: 50%;
-  border: 1.5px solid rgba(28,25,23,0.15);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--muted);
-  transition: border-color 0.2s, color 0.2s;
-}
-.board-card-new:hover .new-icon { border-color: var(--accent-dk); color: var(--accent-dk); }
-.new-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; }
-.new-label {
-  font-size: 14px; color: var(--muted); font-weight: 400;
-  transition: color 0.2s;
-}
-.board-card-new:hover .new-label { color: var(--text); }
-.new-sub {
-  font-size: 12px; color: rgba(28,25,23,0.35); font-weight: 300;
 }
 
 /* ── EMPTY STATE ── */
@@ -306,19 +275,79 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
 
 /* ── SORT DROPDOWN ── */
 .sort-wrap { position: relative; display: inline-block; }
-.sort-select {
-  font-family: var(--sans); font-size: 13px; color: var(--muted);
-  background: none; border: 1px solid var(--border);
-  border-radius: 6px; padding: 5px 28px 5px 12px;
-  cursor: pointer; appearance: none; outline: none;
-  transition: border-color 0.15s;
+.sort-button {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+  background-color: var(--bg-mid);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 8px 34px 8px 12px;
+  min-width: 148px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s, background-color 0.15s;
+  text-align: left;
+  position: relative;
 }
-.sort-select:focus { border-color: var(--accent); }
-.sort-wrap::after {
-  content: '';
-  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-  border-left: 4px solid transparent; border-right: 4px solid transparent;
-  border-top: 5px solid var(--muted); pointer-events: none;
+.sort-button:hover { background-color: #E6DED5; }
+.sort-button:focus,
+.sort-wrap.open .sort-button {
+  border-color: var(--accent);
+  background-color: var(--bg);
+}
+.sort-button svg {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translateY(-50%);
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sort-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 80;
+  min-width: 170px;
+  padding: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 16px 36px rgba(28,25,23,0.16);
+  display: none;
+}
+.sort-wrap.open .sort-menu { display: block; }
+.sort-option {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  border-radius: 6px;
+  padding: 8px 10px 8px 28px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+}
+.sort-option:hover { background: var(--bg-mid); }
+.sort-option.active {
+  color: var(--text);
+  font-weight: 500;
+}
+.sort-option.active::before {
+  content: '✓';
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent-dk);
 }
 
 /* ── DELETE CONFIRM MODAL ── */
@@ -378,17 +407,18 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
     </div>
   </div>
 
-  <!-- FILTERS -->
+  <!-- CONTROLS -->
   <div class="filter-row">
-    <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-    <button class="filter-btn" onclick="setFilter('saved', this)">Saved to account</button>
-    <button class="filter-btn" onclick="setFilter('local', this)">Local only</button>
-    <div class="sort-wrap" style="margin-left:auto;margin-right:8px;">
-      <select class="sort-select" onchange="setSort(this.value)">
-        <option value="recent">Most recent</option>
-        <option value="name">Name</option>
-        <option value="oldest">Oldest</option>
-      </select>
+    <div class="sort-wrap" id="sort-wrap">
+      <button class="sort-button" id="sort-button" type="button" aria-haspopup="listbox" aria-expanded="false" onclick="toggleSortMenu()">
+        <span id="sort-label">Most recent</span>
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5"/></svg>
+      </button>
+      <div class="sort-menu" id="sort-menu" role="listbox" aria-label="Sort boards">
+        <button class="sort-option active" type="button" data-sort="recent" onclick="setSort('recent')" role="option" aria-selected="true">Most recent</button>
+        <button class="sort-option" type="button" data-sort="oldest" onclick="setSort('oldest')" role="option" aria-selected="false">Oldest</button>
+        <button class="sort-option" type="button" data-sort="edited" onclick="setSort('edited')" role="option" aria-selected="false">Recently edited</button>
+      </div>
     </div>
     <div class="search-wrap">
       <svg viewBox="0 0 14 14"><circle cx="6" cy="6" r="4"/><line x1="9.5" y1="9.5" x2="13" y2="13"/></svg>
@@ -402,111 +432,12 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
       <svg viewBox="0 0 28 28"><rect x="4" y="4" width="20" height="20" rx="3"/><line x1="14" y1="9" x2="14" y2="19"/><line x1="9" y1="14" x2="19" y2="14"/></svg>
     </div>
     <h2 class="empty-title">No boards yet.</h2>
-    <p class="empty-sub">Start your first board — no account needed, no templates required. Just your photos and a blank wall.</p>
-    <a href="workspace.html" class="btn-empty">Create your first board</a>
+    <p class="empty-sub">Use the New board button above when you're ready to start.</p>
   </div>
 
   <!-- BOARDS GRID -->
-  <div class="boards-grid" id="boards-grid">
-
-    <!-- New board card -->
-    <a href="workspace.html" class="board-card-new" id="new-card">
-      <div class="new-card-inner">
-        <div class="new-icon">
-          <svg viewBox="0 0 18 18"><line x1="9" y1="3" x2="9" y2="15"/><line x1="3" y1="9" x2="15" y2="9"/></svg>
-        </div>
-        <p class="new-label">New board</p>
-        <p class="new-sub">Start from a blank wall</p>
-      </div>
-    </a>
-
-    <!-- Board 1 -->
-    <div class="board-card" data-id="1" data-name="Soft summer wall" data-type="saved" data-date="2025-06-18">
-      <div class="board-preview bp-cork">
-        <div class="bp-img" style="width:46%;height:48%;top:10%;left:7%;background:#C9A99A;transform:rotate(-2deg)"></div>
-        <div class="bp-img" style="width:38%;height:40%;top:8%;left:50%;background:#D4B8A8;transform:rotate(1.5deg)"></div>
-        <div class="bp-img" style="width:42%;height:34%;top:55%;left:10%;background:#E8DDD4;transform:rotate(1deg)"></div>
-        <div class="bp-img" style="width:34%;height:28%;top:55%;left:52%;background:#1C1917;transform:rotate(-1deg);display:flex;align-items:center;justify-content:center;">
-          <span style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:9px;color:rgba(247,244,239,0.7);">slow is good</span>
-        </div>
-        <div class="board-overlay">
-          <a href="workspace.html" class="overlay-btn">Open</a>
-          <button class="overlay-btn danger" onclick="confirmDelete(event, '1')">Delete</button>
-        </div>
-      </div>
-      <div class="board-meta">
-        <div class="board-name-row">
-          <input class="board-name" value="Soft summer wall" onblur="renameBoard('1', this.value)" onclick="this.select()">
-          <span class="board-badge badge-saved">Saved</span>
-        </div>
-        <p class="board-date">Edited 2 days ago · 4 pictures</p>
-      </div>
-    </div>
-
-    <!-- Board 2 -->
-    <div class="board-card" data-id="2" data-name="Linen pinboard" data-type="saved" data-date="2025-06-15">
-      <div class="board-preview bp-linen">
-        <div class="bp-img" style="width:70%;height:70%;top:15%;left:15%;background:#F0EAE0;border:2px solid rgba(28,25,23,0.1);border-radius:3px;">
-          <div class="bp-img" style="width:44%;height:38%;top:14%;left:8%;background:#C9A99A;"></div>
-          <div class="bp-img" style="width:36%;height:32%;top:12%;left:54%;background:#B8C4BB;"></div>
-          <div class="bp-img" style="width:52%;height:28%;top:56%;left:22%;background:#D4C5B5;"></div>
-        </div>
-        <div class="board-overlay">
-          <a href="workspace.html" class="overlay-btn">Open</a>
-          <button class="overlay-btn danger" onclick="confirmDelete(event, '2')">Delete</button>
-        </div>
-      </div>
-      <div class="board-meta">
-        <div class="board-name-row">
-          <input class="board-name" value="Linen pinboard" onblur="renameBoard('2', this.value)" onclick="this.select()">
-          <span class="board-badge badge-saved">Saved</span>
-        </div>
-        <p class="board-date">Edited 5 days ago · 3 pictures</p>
-      </div>
-    </div>
-
-    <!-- Board 3 -->
-    <div class="board-card" data-id="3" data-name="2025 vision" data-type="local" data-date="2025-06-10">
-      <div class="board-preview bp-dark">
-        <div class="bp-img" style="width:50%;height:46%;top:8%;left:6%;background:#C9A99A;opacity:0.85;transform:rotate(-1.5deg)"></div>
-        <div class="bp-img" style="width:34%;height:38%;top:10%;left:56%;background:#8A9E8A;transform:rotate(2deg)"></div>
-        <div class="bp-img" style="width:44%;height:32%;top:56%;left:20%;background:#D4C5B5;transform:rotate(0.5deg)"></div>
-        <div class="bp-img" style="width:28%;height:30%;top:55%;left:64%;background:#2A2420;border:1px solid rgba(247,244,239,0.15)"></div>
-        <div class="board-overlay">
-          <a href="workspace.html" class="overlay-btn">Open</a>
-          <button class="overlay-btn danger" onclick="confirmDelete(event, '3')">Delete</button>
-        </div>
-      </div>
-      <div class="board-meta">
-        <div class="board-name-row">
-          <input class="board-name" value="2025 vision" onblur="renameBoard('3', this.value)" onclick="this.select()">
-          <span class="board-badge badge-local">Local</span>
-        </div>
-        <p class="board-date">Edited 12 days ago · 6 pictures</p>
-      </div>
-    </div>
-
-    <!-- Board 4 -->
-    <div class="board-card" data-id="4" data-name="Minimal desk wall" data-type="local" data-date="2025-06-01">
-      <div class="board-preview bp-white">
-        <div class="bp-img" style="width:44%;height:38%;top:10%;left:6%;background:#C4B5A8;border-radius:2px;"></div>
-        <div class="bp-img" style="width:40%;height:34%;top:8%;left:52%;background:#D4C5B5;border-radius:2px;"></div>
-        <div class="bp-img" style="width:40%;height:32%;top:56%;left:6%;background:#B8C4BB;border-radius:2px;"></div>
-        <div class="bp-img" style="width:44%;height:32%;top:56%;left:50%;background:#C9A99A;border-radius:2px;"></div>
-        <div class="board-overlay">
-          <a href="workspace.html" class="overlay-btn">Open</a>
-          <button class="overlay-btn danger" onclick="confirmDelete(event, '4')">Delete</button>
-        </div>
-      </div>
-      <div class="board-meta">
-        <div class="board-name-row">
-          <input class="board-name" value="Minimal desk wall" onblur="renameBoard('4', this.value)" onclick="this.select()">
-          <span class="board-badge badge-local">Local</span>
-        </div>
-        <p class="board-date">Edited 21 days ago · 4 pictures</p>
-      </div>
-    </div>
-
+  <div class="boards-grid" id="boards-grid" aria-live="polite">
+    <p class="board-date">Loading boards...</p>
   </div>
 </main>
 
@@ -522,64 +453,6 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
   </div>
 </div>
 
-<script>
-let pendingDeleteId = null;
-let activeFilter = 'all';
-let activeSort = 'recent';
-let searchTerm = '';
-
-function setFilter(type, btn) {
-  activeFilter = type;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderBoards();
-}
-
-function setSort(val) { activeSort = val; renderBoards(); }
-function filterSearch(val) { searchTerm = val.toLowerCase(); renderBoards(); }
-
-function renderBoards() {
-  const cards = [...document.querySelectorAll('.board-card')];
-  let visible = 0;
-  cards.forEach(card => {
-    const type = card.dataset.type;
-    const name = card.dataset.name.toLowerCase();
-    const matchFilter = activeFilter === 'all' || type === activeFilter;
-    const matchSearch = !searchTerm || name.includes(searchTerm);
-    card.style.display = (matchFilter && matchSearch) ? 'flex' : 'none';
-    if (matchFilter && matchSearch) visible++;
-  });
-  document.getElementById('board-count').textContent = visible + ' board' + (visible !== 1 ? 's' : '');
-  document.getElementById('empty-state').style.display = visible === 0 ? 'flex' : 'none';
-}
-
-function renameBoard(id, name) {
-  const card = document.querySelector(`.board-card[data-id="${id}"]`);
-  if (card) card.dataset.name = name;
-}
-
-function confirmDelete(e, id) {
-  e.preventDefault(); e.stopPropagation();
-  pendingDeleteId = id;
-  document.getElementById('modal-overlay').classList.add('show');
-}
-
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('show');
-  pendingDeleteId = null;
-}
-
-document.getElementById('confirm-delete-btn').addEventListener('click', () => {
-  if (!pendingDeleteId) return;
-  const card = document.querySelector(`.board-card[data-id="${pendingDeleteId}"]`);
-  if (card) card.remove();
-  closeModal();
-  renderBoards();
-});
-
-document.getElementById('modal-overlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('modal-overlay')) closeModal();
-});
-</script>
+<script type="module" src="boards.js"></script>
 </body>
 </html>
