@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gleam — My boards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #F7F4EF;
+  --bg-mid:   #EDE8E1;
+  --shell:    #1C1917;
+  --shell-lt: #2E2924;
+  --text:     #1C1917;
+  --muted:    #6B6560;
+  --border:   rgba(28,25,23,0.10);
+  --accent:   #C9A99A;
+  --accent-dk:#A07868;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans:  'Inter', system-ui, sans-serif;
+  --nav-h: 60px;
+}
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0;
+  height: var(--nav-h);
+  background: rgba(247,244,239,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  z-index: 50;
+  display: flex; align-items: center;
+  padding: 0 40px;
+}
+.nav-inner {
+  width: 100%; max-width: 1200px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo {
+  font-family: var(--serif); font-size: 20px; font-weight: 500;
+  color: var(--text); text-decoration: none;
+}
+.nav-center {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--bg-mid); border-radius: 8px; padding: 4px;
+}
+.nav-tab {
+  font-size: 13px; color: var(--muted); padding: 6px 16px;
+  border-radius: 6px; cursor: pointer; transition: background 0.15s, color 0.15s;
+  border: none; background: none; font-family: var(--sans); font-weight: 400;
+  text-decoration: none; display: block;
+}
+.nav-tab.active { background: var(--bg); color: var(--text); font-weight: 500;
+  box-shadow: 0 1px 4px rgba(28,25,23,0.08); }
+.nav-right {
+  display: flex; align-items: center; gap: 12px;
+}
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent); display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 500; color: white; cursor: pointer;
+  font-family: var(--serif);
+}
+.btn-new {
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  color: var(--bg); background: var(--shell);
+  border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer;
+  text-decoration: none; display: flex; align-items: center; gap: 6px;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-new:hover { background: #2C2925; transform: translateY(-1px); }
+.btn-new svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+/* ── PAGE BODY ── */
+main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
+
+/* ── PAGE HEADER ── */
+.page-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 40px;
+}
+.page-title {
+  font-family: var(--serif); font-size: 40px; font-weight: 500;
+  line-height: 1.1; letter-spacing: -0.01em;
+}
+.page-title span { font-style: italic; color: var(--accent-dk); }
+.board-count {
+  font-size: 13px; color: var(--muted); font-weight: 300; margin-bottom: 4px;
+}
+
+/* ── FILTER ROW ── */
+.filter-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 32px;
+  border-bottom: 1px solid var(--border); padding-bottom: 16px;
+}
+.filter-btn {
+  font-size: 13px; color: var(--muted); padding: 5px 14px;
+  border: 1px solid transparent; border-radius: 100px;
+  cursor: pointer; background: none; font-family: var(--sans);
+  transition: all 0.15s;
+}
+.filter-btn:hover { border-color: var(--border); color: var(--text); }
+.filter-btn.active {
+  background: var(--shell); color: var(--bg);
+  border-color: var(--shell); font-weight: 500;
+}
+.search-wrap {
+  margin-left: auto;
+  position: relative;
+  display: flex; align-items: center;
+}
+.search-wrap svg {
+  position: absolute; left: 10px;
+  width: 14px; height: 14px; stroke: var(--muted); fill: none; stroke-width: 1.5;
+}
+.search-input {
+  font-family: var(--sans); font-size: 13px; color: var(--text);
+  background: var(--bg-mid); border: 1px solid transparent;
+  border-radius: 6px; padding: 7px 12px 7px 32px;
+  outline: none; width: 200px; transition: border-color 0.15s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--muted); }
+
+/* ── BOARDS GRID ── */
+.boards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* ── BOARD CARD ── */
+.board-card {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  display: flex; flex-direction: column;
+  position: relative;
+}
+.board-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(28,25,23,0.10);
+  border-color: rgba(28,25,23,0.18);
+}
+
+.board-preview {
+  aspect-ratio: 4/3;
+  position: relative;
+  overflow: hidden;
+}
+
+/* mini board previews using CSS */
+.bp-cork  { background: #3A2E28; }
+.bp-linen { background: #E8E0D4; }
+.bp-dark  { background: #141210; }
+.bp-blush { background: #EADAD4; }
+.bp-white { background: #F0EBE4; }
+
+.bp-img {
+  position: absolute;
+  border-radius: 2px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+}
+
+.board-overlay {
+  position: absolute; inset: 0;
+  background: rgba(28,25,23,0);
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px;
+  transition: background 0.2s;
+}
+.board-card:hover .board-overlay { background: rgba(28,25,23,0.35); }
+
+.overlay-btn {
+  background: var(--bg); color: var(--text);
+  border: none; border-radius: 6px; padding: 8px 16px;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  font-family: var(--sans);
+  opacity: 0; transform: translateY(6px);
+  transition: opacity 0.2s, transform 0.2s, background 0.15s;
+  text-decoration: none; display: inline-block;
+}
+.overlay-btn.danger { background: var(--shell); color: var(--bg); }
+.board-card:hover .overlay-btn { opacity: 1; transform: translateY(0); }
+.overlay-btn.danger { transition-delay: 0.04s; }
+
+.board-meta {
+  padding: 16px 18px 18px;
+  border-top: 1px solid var(--border);
+}
+
+.board-name-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 5px;
+  gap: 8px;
+}
+
+.board-name {
+  font-family: var(--serif); font-size: 17px; font-weight: 500;
+  color: var(--text); flex: 1;
+  background: none; border: none; outline: none; cursor: text;
+  font-family: var(--serif); font-size: 17px; font-weight: 500;
+  padding: 2px 4px; margin: -2px -4px;
+  border-radius: 4px; transition: background 0.15s;
+}
+.board-name:hover { background: var(--bg-mid); }
+.board-name:focus { background: var(--bg-mid); cursor: text; }
+
+.board-badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 100px;
+  font-weight: 500; letter-spacing: 0.04em; white-space: nowrap;
+  text-transform: uppercase;
+}
+.badge-local { background: var(--bg-mid); color: var(--muted); }
+.badge-saved { background: rgba(63,138,61,0.1); color: #3B6B3A; }
+
+.board-date {
+  font-size: 12px; color: var(--muted); font-weight: 300;
+}
+
+.board-imgs-count {
+  font-size: 12px; color: var(--muted); font-weight: 300; margin-top: 2px;
+}
+
+/* ── NEW BOARD CARD ── */
+.board-card-new {
+  background: var(--bg);
+  border-radius: 10px;
+  border: 1.5px dashed rgba(28,25,23,0.18);
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  display: flex; flex-direction: column;
+  text-decoration: none;
+}
+.board-card-new:hover {
+  border-color: var(--accent);
+  background: rgba(201,169,154,0.05);
+}
+.new-card-inner {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  min-height: 220px;
+}
+.new-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1.5px solid rgba(28,25,23,0.15);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  transition: border-color 0.2s, color 0.2s;
+}
+.board-card-new:hover .new-icon { border-color: var(--accent-dk); color: var(--accent-dk); }
+.new-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; }
+.new-label {
+  font-size: 14px; color: var(--muted); font-weight: 400;
+  transition: color 0.2s;
+}
+.board-card-new:hover .new-label { color: var(--text); }
+.new-sub {
+  font-size: 12px; color: rgba(28,25,23,0.35); font-weight: 300;
+}
+
+/* ── EMPTY STATE ── */
+#empty-state {
+  display: none;
+  flex-direction: column; align-items: center; justify-content: center;
+  padding: 100px 40px; text-align: center; gap: 16px;
+}
+.empty-icon-lg {
+  width: 64px; height: 64px; border-radius: 12px;
+  border: 1.5px dashed rgba(28,25,23,0.15);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px; color: rgba(28,25,23,0.2);
+}
+.empty-icon-lg svg { width: 28px; height: 28px; stroke: currentColor; fill: none; stroke-width: 1.2; }
+.empty-title {
+  font-family: var(--serif); font-size: 26px; font-weight: 500; color: var(--text);
+}
+.empty-sub { font-size: 15px; color: var(--muted); font-weight: 300; line-height: 1.6; max-width: 340px; }
+.btn-empty {
+  margin-top: 8px;
+  font-family: var(--sans); font-size: 14px; font-weight: 500;
+  color: var(--bg); background: var(--shell);
+  border: none; padding: 12px 28px; border-radius: 7px;
+  cursor: pointer; text-decoration: none; display: inline-block;
+  transition: background 0.15s;
+}
+.btn-empty:hover { background: #2C2925; }
+
+/* ── SECTION DIVIDER ── */
+.section-label {
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); font-weight: 500; margin-bottom: 16px; margin-top: 40px;
+}
+.section-label:first-of-type { margin-top: 0; }
+
+/* ── SORT DROPDOWN ── */
+.sort-wrap { position: relative; display: inline-block; }
+.sort-select {
+  font-family: var(--sans); font-size: 13px; color: var(--muted);
+  background: none; border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 28px 5px 12px;
+  cursor: pointer; appearance: none; outline: none;
+  transition: border-color 0.15s;
+}
+.sort-select:focus { border-color: var(--accent); }
+.sort-wrap::after {
+  content: '';
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  border-left: 4px solid transparent; border-right: 4px solid transparent;
+  border-top: 5px solid var(--muted); pointer-events: none;
+}
+
+/* ── DELETE CONFIRM MODAL ── */
+#modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(28,25,23,0.5);
+  z-index: 200;
+  display: none; align-items: center; justify-content: center;
+}
+#modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg); border-radius: 12px;
+  padding: 32px; max-width: 360px; width: 90%;
+  box-shadow: 0 20px 60px rgba(28,25,23,0.2);
+}
+.modal h2 { font-family: var(--serif); font-size: 24px; font-weight: 500; margin-bottom: 10px; }
+.modal p { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; font-weight: 300; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.btn-cancel {
+  font-family: var(--sans); font-size: 14px; padding: 9px 20px;
+  background: var(--bg-mid); border: none; border-radius: 7px; cursor: pointer; color: var(--text);
+}
+.btn-delete-confirm {
+  font-family: var(--sans); font-size: 14px; font-weight: 500; padding: 9px 20px;
+  background: #C0624A; border: none; border-radius: 7px; cursor: pointer; color: white;
+}
+</style>
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Gleam</a>
+    <div class="nav-right">
+      <a href="workspace.html" class="btn-new">
+        <svg viewBox="0 0 12 12"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+        New board
+      </a>
+      <div class="avatar" title="Account">E</div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div>
+      <p class="board-count" id="board-count">4 boards</p>
+      <h1 class="page-title">Your <span>boards.</span></h1>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+    <button class="filter-btn" onclick="setFilter('saved', this)">Saved to account</button>
+    <button class="filter-btn" onclick="setFilter('local', this)">Local only</button>
+    <div class="sort-wrap" style="margin-left:auto;margin-right:8px;">
+      <select class="sort-select" onchange="setSort(this.value)">
+        <option value="recent">Most recent</option>
+        <option value="name">Name</option>
+        <option value="oldest">Oldest</option>
+      </select>
+    </div>
+    <div class="search-wrap">
+      <svg viewBox="0 0 14 14"><circle cx="6" cy="6" r="4"/><line x1="9.5" y1="9.5" x2="13" y2="13"/></svg>
+      <input class="search-input" type="text" placeholder="Search boards…" oninput="filterSearch(this.value)">
+    </div>
+  </div>
+
+  <!-- EMPTY STATE (hidden by default) -->
+  <div id="empty-state">
+    <div class="empty-icon-lg">
+      <svg viewBox="0 0 28 28"><rect x="4" y="4" width="20" height="20" rx="3"/><line x1="14" y1="9" x2="14" y2="19"/><line x1="9" y1="14" x2="19" y2="14"/></svg>
+    </div>
+    <h2 class="empty-title">No boards yet.</h2>
+    <p class="empty-sub">Start your first board — no account needed, no templates required. Just your photos and a blank wall.</p>
+    <a href="workspace.html" class="btn-empty">Create your first board</a>
+  </div>
+
+  <!-- BOARDS GRID -->
+  <div class="boards-grid" id="boards-grid">
+
+    <!-- New board card -->
+    <a href="workspace.html" class="board-card-new" id="new-card">
+      <div class="new-card-inner">
+        <div class="new-icon">
+          <svg viewBox="0 0 18 18"><line x1="9" y1="3" x2="9" y2="15"/><line x1="3" y1="9" x2="15" y2="9"/></svg>
+        </div>
+        <p class="new-label">New board</p>
+        <p class="new-sub">Start from a blank wall</p>
+      </div>
+    </a>
+
+    <!-- Board 1 -->
+    <div class="board-card" data-id="1" data-name="Soft summer wall" data-type="saved" data-date="2025-06-18">
+      <div class="board-preview bp-cork">
+        <div class="bp-img" style="width:46%;height:48%;top:10%;left:7%;background:#C9A99A;transform:rotate(-2deg)"></div>
+        <div class="bp-img" style="width:38%;height:40%;top:8%;left:50%;background:#D4B8A8;transform:rotate(1.5deg)"></div>
+        <div class="bp-img" style="width:42%;height:34%;top:55%;left:10%;background:#E8DDD4;transform:rotate(1deg)"></div>
+        <div class="bp-img" style="width:34%;height:28%;top:55%;left:52%;background:#1C1917;transform:rotate(-1deg);display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:9px;color:rgba(247,244,239,0.7);">slow is good</span>
+        </div>
+        <div class="board-overlay">
+          <a href="workspace.html" class="overlay-btn">Open</a>
+          <button class="overlay-btn danger" onclick="confirmDelete(event, '1')">Delete</button>
+        </div>
+      </div>
+      <div class="board-meta">
+        <div class="board-name-row">
+          <input class="board-name" value="Soft summer wall" onblur="renameBoard('1', this.value)" onclick="this.select()">
+          <span class="board-badge badge-saved">Saved</span>
+        </div>
+        <p class="board-date">Edited 2 days ago · 4 pictures</p>
+      </div>
+    </div>
+
+    <!-- Board 2 -->
+    <div class="board-card" data-id="2" data-name="Linen pinboard" data-type="saved" data-date="2025-06-15">
+      <div class="board-preview bp-linen">
+        <div class="bp-img" style="width:70%;height:70%;top:15%;left:15%;background:#F0EAE0;border:2px solid rgba(28,25,23,0.1);border-radius:3px;">
+          <div class="bp-img" style="width:44%;height:38%;top:14%;left:8%;background:#C9A99A;"></div>
+          <div class="bp-img" style="width:36%;height:32%;top:12%;left:54%;background:#B8C4BB;"></div>
+          <div class="bp-img" style="width:52%;height:28%;top:56%;left:22%;background:#D4C5B5;"></div>
+        </div>
+        <div class="board-overlay">
+          <a href="workspace.html" class="overlay-btn">Open</a>
+          <button class="overlay-btn danger" onclick="confirmDelete(event, '2')">Delete</button>
+        </div>
+      </div>
+      <div class="board-meta">
+        <div class="board-name-row">
+          <input class="board-name" value="Linen pinboard" onblur="renameBoard('2', this.value)" onclick="this.select()">
+          <span class="board-badge badge-saved">Saved</span>
+        </div>
+        <p class="board-date">Edited 5 days ago · 3 pictures</p>
+      </div>
+    </div>
+
+    <!-- Board 3 -->
+    <div class="board-card" data-id="3" data-name="2025 vision" data-type="local" data-date="2025-06-10">
+      <div class="board-preview bp-dark">
+        <div class="bp-img" style="width:50%;height:46%;top:8%;left:6%;background:#C9A99A;opacity:0.85;transform:rotate(-1.5deg)"></div>
+        <div class="bp-img" style="width:34%;height:38%;top:10%;left:56%;background:#8A9E8A;transform:rotate(2deg)"></div>
+        <div class="bp-img" style="width:44%;height:32%;top:56%;left:20%;background:#D4C5B5;transform:rotate(0.5deg)"></div>
+        <div class="bp-img" style="width:28%;height:30%;top:55%;left:64%;background:#2A2420;border:1px solid rgba(247,244,239,0.15)"></div>
+        <div class="board-overlay">
+          <a href="workspace.html" class="overlay-btn">Open</a>
+          <button class="overlay-btn danger" onclick="confirmDelete(event, '3')">Delete</button>
+        </div>
+      </div>
+      <div class="board-meta">
+        <div class="board-name-row">
+          <input class="board-name" value="2025 vision" onblur="renameBoard('3', this.value)" onclick="this.select()">
+          <span class="board-badge badge-local">Local</span>
+        </div>
+        <p class="board-date">Edited 12 days ago · 6 pictures</p>
+      </div>
+    </div>
+
+    <!-- Board 4 -->
+    <div class="board-card" data-id="4" data-name="Minimal desk wall" data-type="local" data-date="2025-06-01">
+      <div class="board-preview bp-white">
+        <div class="bp-img" style="width:44%;height:38%;top:10%;left:6%;background:#C4B5A8;border-radius:2px;"></div>
+        <div class="bp-img" style="width:40%;height:34%;top:8%;left:52%;background:#D4C5B5;border-radius:2px;"></div>
+        <div class="bp-img" style="width:40%;height:32%;top:56%;left:6%;background:#B8C4BB;border-radius:2px;"></div>
+        <div class="bp-img" style="width:44%;height:32%;top:56%;left:50%;background:#C9A99A;border-radius:2px;"></div>
+        <div class="board-overlay">
+          <a href="workspace.html" class="overlay-btn">Open</a>
+          <button class="overlay-btn danger" onclick="confirmDelete(event, '4')">Delete</button>
+        </div>
+      </div>
+      <div class="board-meta">
+        <div class="board-name-row">
+          <input class="board-name" value="Minimal desk wall" onblur="renameBoard('4', this.value)" onclick="this.select()">
+          <span class="board-badge badge-local">Local</span>
+        </div>
+        <p class="board-date">Edited 21 days ago · 4 pictures</p>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- DELETE CONFIRM MODAL -->
+<div id="modal-overlay">
+  <div class="modal">
+    <h2>Delete this board?</h2>
+    <p>This can't be undone. All pictures and layouts in this board will be permanently removed.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Keep it</button>
+      <button class="btn-delete-confirm" id="confirm-delete-btn">Yes, delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let pendingDeleteId = null;
+let activeFilter = 'all';
+let activeSort = 'recent';
+let searchTerm = '';
+
+function setFilter(type, btn) {
+  activeFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBoards();
+}
+
+function setSort(val) { activeSort = val; renderBoards(); }
+function filterSearch(val) { searchTerm = val.toLowerCase(); renderBoards(); }
+
+function renderBoards() {
+  const cards = [...document.querySelectorAll('.board-card')];
+  let visible = 0;
+  cards.forEach(card => {
+    const type = card.dataset.type;
+    const name = card.dataset.name.toLowerCase();
+    const matchFilter = activeFilter === 'all' || type === activeFilter;
+    const matchSearch = !searchTerm || name.includes(searchTerm);
+    card.style.display = (matchFilter && matchSearch) ? 'flex' : 'none';
+    if (matchFilter && matchSearch) visible++;
+  });
+  document.getElementById('board-count').textContent = visible + ' board' + (visible !== 1 ? 's' : '');
+  document.getElementById('empty-state').style.display = visible === 0 ? 'flex' : 'none';
+}
+
+function renameBoard(id, name) {
+  const card = document.querySelector(`.board-card[data-id="${id}"]`);
+  if (card) card.dataset.name = name;
+}
+
+function confirmDelete(e, id) {
+  e.preventDefault(); e.stopPropagation();
+  pendingDeleteId = id;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+  pendingDeleteId = null;
+}
+
+document.getElementById('confirm-delete-btn').addEventListener('click', () => {
+  if (!pendingDeleteId) return;
+  const card = document.querySelector(`.board-card[data-id="${pendingDeleteId}"]`);
+  if (card) card.remove();
+  closeModal();
+  renderBoards();
+});
+
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+});
+</script>
+</body>
+</html>
