@@ -91,6 +91,23 @@ nav {
   gap: 16px;
 }
 
+.nav-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background-size: cover;
+  background-position: center;
+}
+
 .btn-ghost {
   font-family: var(--sans);
   font-size: 14px;
@@ -903,11 +920,11 @@ footer {
       <li><a href="#how">How it works</a></li>
       <li><a href="#showcase">Inspiration</a></li>
       <li><a href="about.html">About</a></li>
-      <li><a href="login.html?from=boards">My boards</a></li>
+      <li><a href="boards.html" data-auth-link="boards">My boards</a></li>
       <li><a href="workspace.html">Workspace</a></li>
     </ul>
-    <div class="nav-actions">
-      <a href="login.html" class="btn-ghost">Log in</a>
+    <div class="nav-actions" data-auth-actions>
+      <a href="login.html" class="btn-ghost" data-auth="login">Log in</a>
       <a href="workspace.html" class="btn-primary">Create board</a>
     </div>
   </div>
@@ -1136,7 +1153,7 @@ footer {
     <p class="cta-note reveal reveal-delay-1">Start free. No account needed for your first board.</p>
     <div class="cta-actions reveal reveal-delay-2">
       <a href="workspace.html" class="btn-primary btn-primary-lg" style="background: var(--bg); color: var(--text);">Create new board</a>
-      <a href="login.html?from=boards" class="btn-outline-lg">Open workspace</a>
+      <a href="boards.html" class="btn-outline-lg" data-auth-link="boards">Open workspace</a>
     </div>
   </div>
 </div>
@@ -1154,6 +1171,7 @@ footer {
   </div>
 </footer>
 
+<script type="module" src="auth-nav.js"></script>
 <script>
 const reveals = document.querySelectorAll('.reveal');
 const observer = new IntersectionObserver((entries) => {

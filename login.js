@@ -1,4 +1,4 @@
-import { supabase } from './supabase-client.js';
+import { getCurrentUser, supabase } from './supabase-client.js';
 
 let mode = 'signin';
 
@@ -96,3 +96,9 @@ if (params.get('from') === 'boards') {
 }
 
 window.setMode = setMode;
+
+getCurrentUser().then(user => {
+  if (!user) return;
+  const from = params.get('from');
+  window.location.href = from === 'profile' ? 'profile.html' : 'boards.html';
+});

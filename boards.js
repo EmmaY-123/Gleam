@@ -1,4 +1,11 @@
-import { getCurrentUser, openWorkspaceUrl, supabase } from './supabase-client.js';
+import {
+  getCurrentUser,
+  getUserProfile,
+  openWorkspaceUrl,
+  profileInitial,
+  signedStorageUrl,
+  supabase,
+} from './supabase-client.js';
 
 let boards = [];
 let pendingDeleteId = null;
@@ -96,7 +103,15 @@ async function loadBoards() {
     return;
   }
 
-  document.querySelector('.avatar').textContent = (user.email || 'G').slice(0, 1).toUpperCase();
+  const profile = await getUserProfile(user);
+  const avatarPath = profile?.avatar_path || user.user_metadata?.avatar_path;
+  const avatarUrl = await signedStorageUrl('profile-avatars', avatarPath);
+  const avatar = document.querySelector('.avatar');
+  avatar.textContent = profileInitial(user, profile);
+  if (avatarUrl) {
+    avatar.textContent = '';
+    avatar.style.backgroundImage = `url("${avatarUrl}")`;
+  }
   setStatus('Loading...');
 
   const { data, error } = await supabase

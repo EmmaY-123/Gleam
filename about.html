@@ -39,6 +39,22 @@ nav {
 .nav-links a { font-size: 14px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
 .nav-links a:hover, .nav-links a.active { color: var(--text); }
 .nav-actions { display: flex; align-items: center; gap: 16px; }
+.nav-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-family: var(--serif);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background-size: cover;
+  background-position: center;
+}
 .btn-ghost { font-family: var(--sans); font-size: 14px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: none; transition: color 0.2s; }
 .btn-ghost:hover { color: var(--text); }
 .btn-primary { font-family: var(--sans); font-size: 14px; font-weight: 500; color: var(--bg); background: var(--text); border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; text-decoration: none; transition: background 0.2s; display: inline-block; }
@@ -190,11 +206,11 @@ footer { background: var(--shell); border-top: 1px solid rgba(247,244,239,0.06);
       <li><a href="index.html#how">How it works</a></li>
       <li><a href="index.html#showcase">Inspiration</a></li>
       <li><a href="about.html" class="active">About</a></li>
-      <li><a href="login.html?from=boards">My boards</a></li>
+      <li><a href="boards.html" data-auth-link="boards">My boards</a></li>
       <li><a href="workspace.html">Workspace</a></li>
     </ul>
-    <div class="nav-actions">
-      <a href="login.html?from=login" class="btn-ghost">Log in</a>
+    <div class="nav-actions" data-auth-actions>
+      <a href="login.html?from=login" class="btn-ghost" data-auth="login">Log in</a>
       <a href="workspace.html" class="btn-primary">Create board</a>
     </div>
   </div>
@@ -334,6 +350,7 @@ footer { background: var(--shell); border-top: 1px solid rgba(247,244,239,0.06);
   </div>
 </footer>
 
+<script type="module" src="auth-nav.js"></script>
 <script>
 function handleContact(e) {
   e.preventDefault();
