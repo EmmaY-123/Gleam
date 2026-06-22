@@ -55,6 +55,9 @@ nav {
   background-size: cover;
   background-position: center;
 }
+.nav-avatar[data-profile-link] { display: none; }
+.likely-signed-in [data-auth="login"] { display: none; }
+.likely-signed-in .nav-avatar[data-profile-link] { display: flex; }
 .btn-ghost { font-family: var(--sans); font-size: 14px; color: var(--muted); background: none; border: none; cursor: pointer; text-decoration: none; transition: color 0.2s; }
 .btn-ghost:hover { color: var(--text); }
 .btn-primary { font-family: var(--sans); font-size: 14px; font-weight: 500; color: var(--bg); background: var(--text); border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; text-decoration: none; transition: background 0.2s; display: inline-block; }
@@ -195,6 +198,13 @@ footer { background: var(--shell); border-top: 1px solid rgba(247,244,239,0.06);
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
+  <script>
+    try {
+      if (Object.keys(localStorage).some(key => key.startsWith('sb-') && key.endsWith('-auth-token'))) {
+        document.documentElement.classList.add('likely-signed-in');
+      }
+    } catch {}
+  </script>
 </head>
 <body>
 
@@ -212,6 +222,7 @@ footer { background: var(--shell); border-top: 1px solid rgba(247,244,239,0.06);
     <div class="nav-actions" data-auth-actions>
       <a href="login.html?from=login" class="btn-ghost" data-auth="login">Log in</a>
       <a href="workspace.html" class="btn-primary">Create board</a>
+      <a href="profile.html" class="nav-avatar" data-profile-link title="Profile settings">G</a>
     </div>
   </div>
 </nav>

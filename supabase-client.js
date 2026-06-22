@@ -4,6 +4,8 @@ export const SUPABASE_URL = 'https://xvqrjdskhlzuvbylojwe.supabase.co';
 export const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_XCyLzdi2tkDiyBq5MrldbA_hiuJ4wbX';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const PROFILE_CACHE_KEY = 'gleam:profile';
+const BOARDS_CACHE_KEY = 'gleam:boards';
 
 export async function getCurrentSession() {
   const { data, error } = await supabase.auth.getSession();
@@ -34,6 +36,58 @@ export function profileName(user, profile) {
 
 export function profileInitial(user, profile) {
   return profileName(user, profile).trim().slice(0, 1).toUpperCase() || 'G';
+}
+
+export function getCachedProfile() {
+  try {
+    return JSON.parse(localStorage.getItem(PROFILE_CACHE_KEY) || 'null');
+  } catch {
+    return null;
+  }
+}
+
+export function cacheProfile(profile) {
+  try {
+    if (profile) localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify(profile));
+  } catch {
+    // Cache is only for faster first paint.
+  }
+}
+
+export function getCachedBoards() {
+  try {
+    return JSON.parse(sessionStorage.getItem(BOARDS_CACHE_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export function cacheBoards(boards) {
+  try {
+    sessionStorage.setItem(BOARDS_CACHE_KEY, JSON.stringify(boards || []));
+  } catch {
+    // Cache is only for faster first paint.
+  }
+}
+
+export function clearGleamCache() {
+  try {
+    localStorage.removeItem(PROFILE_CACHE_KEY);
+    sessionStorage.removeItem(BOARDS_CACHE_KEY);
+    Object.keys(sessionStorage)
+      .filter(key => key.startsWith('gleam:signed-url:'))
+      .forEach(key => sessionStorage.removeItem(key));
+  } catch {
+    // Ignore unavailable storage.
+  }
+}
+
+export function hasCachedSupabaseSession() {
+  try {
+    return Object.keys(localStorage).some(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
+  } catch {
+    return false;
+  }
 }
 
 export async function signedStorageUrl(bucket, path, expiresIn = 3600) {

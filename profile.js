@@ -1,4 +1,7 @@
 import {
+  cacheProfile,
+  clearGleamCache,
+  getCachedProfile,
   getCurrentUser,
   getUserProfile,
   profileInitial,
@@ -28,6 +31,12 @@ function setAvatarPreview(url, fallbackText) {
 }
 
 async function loadProfile() {
+  const cachedProfile = getCachedProfile();
+  if (cachedProfile) {
+    document.getElementById('username').value = profileName(null, cachedProfile);
+    setAvatarPreview('', profileInitial(null, cachedProfile));
+  }
+
   currentUser = await getCurrentUser();
   if (!currentUser) {
     window.location.href = 'login.html?from=profile';
@@ -35,6 +44,7 @@ async function loadProfile() {
   }
 
   currentProfile = await getUserProfile(currentUser);
+  if (currentProfile) cacheProfile(currentProfile);
   document.getElementById('email').value = currentUser.email || '';
   document.getElementById('username').value = profileName(currentUser, currentProfile);
 
@@ -83,6 +93,7 @@ async function saveProfile(event) {
 
     await supabase.auth.updateUser({ data: { name: username, avatar_path: avatarPath || null } });
     currentProfile = { user_id: currentUser.id, username, avatar_path: avatarPath };
+    cacheProfile(currentProfile);
     const avatarUrl = await signedStorageUrl('profile-avatars', avatarPath);
     setAvatarPreview(avatarUrl, profileInitial(currentUser, currentProfile));
     setMessage('Profile saved.');
@@ -104,6 +115,7 @@ document.getElementById('avatar-input').addEventListener('change', event => {
 document.getElementById('profile-form').addEventListener('submit', saveProfile);
 document.getElementById('sign-out').addEventListener('click', async () => {
   await supabase.auth.signOut();
+  clearGleamCache();
   window.location.href = 'index.html';
 });
 

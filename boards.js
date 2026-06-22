@@ -1,4 +1,8 @@
 import {
+  cacheBoards,
+  cacheProfile,
+  getCachedBoards,
+  getCachedProfile,
   getCurrentUser,
   getUserProfile,
   openWorkspaceUrl,
@@ -21,6 +25,18 @@ const sortLabels = {
 
 function setStatus(message) {
   document.getElementById('board-count').textContent = message;
+}
+
+function renderCachedShell() {
+  const cachedBoards = getCachedBoards();
+  const cachedProfile = getCachedProfile();
+  const avatar = document.querySelector('.avatar');
+  if (cachedProfile) avatar.textContent = profileInitial(null, cachedProfile);
+  if (cachedBoards.length) {
+    boards = cachedBoards;
+    renderBoards();
+    setStatus(`${cachedBoards.length} board${cachedBoards.length === 1 ? '' : 's'}`);
+  }
 }
 
 function boardCard(board) {
@@ -100,6 +116,7 @@ function escapeAttr(value) {
 }
 
 async function loadBoards() {
+  renderCachedShell();
   const user = await getCurrentUser();
   if (!user) {
     window.location.href = 'login.html?from=boards';
@@ -124,10 +141,21 @@ async function loadBoards() {
   await attachThumbnails();
   await attachBoardItemsForMissingThumbnails();
   renderBoards();
+  cacheBoards(boards.map(board => ({
+    id: board.id,
+    title: board.title,
+    background: board.background,
+    thumbnail_path: board.thumbnail_path,
+    thumbnailSrc: board.thumbnailSrc,
+    created_at: board.created_at,
+    updated_at: board.updated_at,
+    items: board.thumbnailSrc ? [] : board.items || [],
+  })));
 }
 
 async function hydrateAvatar(user) {
   const profile = await getUserProfile(user);
+  if (profile) cacheProfile(profile);
   const avatarPath = profile?.avatar_path || user.user_metadata?.avatar_path;
   const avatar = document.querySelector('.avatar');
   avatar.textContent = profileInitial(user, profile);

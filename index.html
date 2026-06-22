@@ -107,6 +107,9 @@ nav {
   background-size: cover;
   background-position: center;
 }
+.nav-avatar[data-profile-link] { display: none; }
+.likely-signed-in [data-auth="login"] { display: none; }
+.likely-signed-in .nav-avatar[data-profile-link] { display: flex; }
 
 .btn-ghost {
   font-family: var(--sans);
@@ -909,6 +912,13 @@ footer {
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/insights/script.js"></script>
+  <script>
+    try {
+      if (Object.keys(localStorage).some(key => key.startsWith('sb-') && key.endsWith('-auth-token'))) {
+        document.documentElement.classList.add('likely-signed-in');
+      }
+    } catch {}
+  </script>
 </head>
 <body>
 
@@ -926,6 +936,7 @@ footer {
     <div class="nav-actions" data-auth-actions>
       <a href="login.html" class="btn-ghost" data-auth="login">Log in</a>
       <a href="workspace.html" class="btn-primary">Create board</a>
+      <a href="profile.html" class="nav-avatar" data-profile-link title="Profile settings">G</a>
     </div>
   </div>
 </nav>
