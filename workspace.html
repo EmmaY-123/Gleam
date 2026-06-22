@@ -1549,10 +1549,9 @@ function drawExportItem(ctx, item, scale) {
   ctx.restore();
 }
 
-function exportBoard() {
+function renderBoardCanvas(exportScale = 2) {
   selectImg(null);
 
-  const exportScale = 2;
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(board.offsetWidth * exportScale);
   canvas.height = Math.round(board.offsetHeight * exportScale);
@@ -1568,6 +1567,11 @@ function exportBoard() {
     drawExportItem(ctx, item, exportScale);
   }
 
+  return canvas;
+}
+
+function exportBoard() {
+  const canvas = renderBoardCanvas(2);
   const link = document.createElement('a');
   link.download = `${slugifyFileName(document.getElementById('board-name').value)}.png`;
   link.href = canvas.toDataURL('image/png');
@@ -1645,6 +1649,7 @@ window.gleamWorkspace = {
   setBackground,
   showToast,
   updateImgCount,
+  renderBoardCanvas,
   setSaveText(text) { saveText.textContent = text; },
   onChange(callback) { window.gleamWorkspaceChange = callback; },
 };

@@ -14,9 +14,7 @@ export async function getCurrentSession() {
 export async function getCurrentUser() {
   const session = await getCurrentSession();
   if (!session?.user) return null;
-  const { data, error } = await supabase.auth.getUser();
-  if (error) return session.user;
-  return data.user;
+  return session.user;
 }
 
 export async function getUserProfile(user) {
@@ -41,9 +39,38 @@ export function profileInitial(user, profile) {
 export async function signedStorageUrl(bucket, path, expiresIn = 3600) {
   if (!path) return '';
   if (path.startsWith('data:') || path.startsWith('http')) return path;
+  const cacheKey = `gleam:signed-url:${bucket}:${path}`;
+  const cached = readSignedUrlCache(cacheKey);
+  if (cached) return cached;
+
   const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, expiresIn);
   if (error) return '';
-  return data?.signedUrl || '';
+  const signedUrl = data?.signedUrl || '';
+  writeSignedUrlCache(cacheKey, signedUrl, expiresIn);
+  return signedUrl;
+}
+
+function readSignedUrlCache(cacheKey) {
+  try {
+    const cached = JSON.parse(sessionStorage.getItem(cacheKey) || 'null');
+    if (!cached?.url || !cached.expiresAt || cached.expiresAt <= Date.now()) {
+      sessionStorage.removeItem(cacheKey);
+      return '';
+    }
+    return cached.url;
+  } catch {
+    return '';
+  }
+}
+
+function writeSignedUrlCache(cacheKey, url, expiresIn) {
+  if (!url) return;
+  try {
+    const expiresAt = Date.now() + Math.max(expiresIn - 60, 60) * 1000;
+    sessionStorage.setItem(cacheKey, JSON.stringify({ url, expiresAt }));
+  } catch {
+    // Cache is only a speed boost; the app still works without it.
+  }
 }
 
 export function getBoardIdFromUrl() {

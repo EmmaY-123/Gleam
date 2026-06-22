@@ -8,10 +8,6 @@ async function hydrateAuthNav() {
   const user = await getCurrentUser();
   if (!user) return;
 
-  const profile = await getUserProfile(user);
-  const avatarPath = profile?.avatar_path || user.user_metadata?.avatar_path;
-  const avatarUrl = await signedStorageUrl('profile-avatars', avatarPath);
-
   document.body.classList.add('signed-in');
   document.querySelectorAll('[data-auth="login"]').forEach(el => { el.style.display = 'none'; });
 
@@ -22,12 +18,22 @@ async function hydrateAuthNav() {
     profileLink.className = 'nav-avatar';
     profileLink.dataset.profileLink = 'true';
     profileLink.title = 'Profile settings';
+    profileLink.textContent = profileInitial(user, null);
+    actions.appendChild(profileLink);
+  });
+
+  const profile = await getUserProfile(user);
+  const avatarPath = profile?.avatar_path || user.user_metadata?.avatar_path;
+  const avatarUrl = await signedStorageUrl('profile-avatars', avatarPath);
+
+  document.querySelectorAll('[data-auth-actions]').forEach(actions => {
+    const profileLink = actions.querySelector('[data-profile-link]');
+    if (!profileLink) return;
     profileLink.textContent = profileInitial(user, profile);
     if (avatarUrl) {
       profileLink.textContent = '';
       profileLink.style.backgroundImage = `url("${avatarUrl}")`;
     }
-    actions.appendChild(profileLink);
   });
 }
 

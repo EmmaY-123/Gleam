@@ -26,10 +26,13 @@ function setStatus(message) {
 function boardCard(board) {
   const updated = new Date(board.updated_at || board.created_at);
   const label = Number.isNaN(updated.getTime()) ? 'Saved' : `Edited ${updated.toLocaleDateString()}`;
+  const thumbnail = board.thumbnailSrc
+    ? `<img class="board-thumbnail" src="${escapeAttr(board.thumbnailSrc)}" alt="">`
+    : previewItems(board);
   return `
     <div class="board-card" data-id="${board.id}" data-name="${escapeHtml(board.title)}" data-type="saved" data-date="${board.updated_at || board.created_at}">
       <div class="board-preview ${previewClass(board.background)}">
-        ${previewItems(board)}
+        ${thumbnail}
         <div class="board-overlay">
           <a href="${openWorkspaceUrl(board.id)}" class="overlay-btn">Open</a>
           <button class="overlay-btn danger" onclick="confirmDelete(event, '${board.id}')">Delete</button>
@@ -103,21 +106,13 @@ async function loadBoards() {
     return;
   }
 
-  const profile = await getUserProfile(user);
-  const avatarPath = profile?.avatar_path || user.user_metadata?.avatar_path;
-  const avatarUrl = await signedStorageUrl('profile-avatars', avatarPath);
   const avatar = document.querySelector('.avatar');
-  avatar.textContent = profileInitial(user, profile);
-  if (avatarUrl) {
-    avatar.textContent = '';
-    avatar.style.backgroundImage = `url("${avatarUrl}")`;
-  }
+  avatar.textContent = profileInitial(user, null);
   setStatus('Loading...');
 
-  const { data, error } = await supabase
-    .from('boards')
-    .select('*')
-    .order('updated_at', { ascending: false });
+  hydrateAvatar(user);
+
+  const { data, error } = await loadBoardRows();
 
   if (error) {
     setStatus('Could not load boards');
@@ -126,13 +121,51 @@ async function loadBoards() {
   }
 
   boards = data || [];
-  await attachBoardItems();
+  await attachThumbnails();
+  await attachBoardItemsForMissingThumbnails();
   renderBoards();
 }
 
-async function attachBoardItems() {
+async function hydrateAvatar(user) {
+  const profile = await getUserProfile(user);
+  const avatarPath = profile?.avatar_path || user.user_metadata?.avatar_path;
+  const avatar = document.querySelector('.avatar');
+  avatar.textContent = profileInitial(user, profile);
+  const avatarUrl = await signedStorageUrl('profile-avatars', avatarPath);
+  if (avatarUrl) {
+    avatar.textContent = '';
+    avatar.style.backgroundImage = `url("${avatarUrl}")`;
+  }
+}
+
+async function loadBoardRows() {
+  return supabase
+    .from('boards')
+    .select('*')
+    .order('updated_at', { ascending: false });
+}
+
+async function attachThumbnails() {
+  const paths = [...new Set(boards.map(board => board.thumbnail_path).filter(Boolean))];
+  if (!paths.length) return;
+
+  const signedUrlByPath = new Map();
+  await Promise.all(paths.map(async path => {
+    const signedUrl = await signedStorageUrl('board-thumbnails', path);
+    if (signedUrl) signedUrlByPath.set(path, signedUrl);
+  }));
+
+  boards = boards.map(board => ({
+    ...board,
+    thumbnailSrc: signedUrlByPath.get(board.thumbnail_path) || '',
+  }));
+}
+
+async function attachBoardItemsForMissingThumbnails() {
   if (!boards.length) return;
-  const boardIds = boards.map(board => board.id);
+  const boardIds = boards.filter(board => !board.thumbnailSrc).map(board => board.id);
+  if (!boardIds.length) return;
+
   const { data, error } = await supabase
     .from('board_items')
     .select('*')
@@ -150,10 +183,8 @@ async function attachBoardItems() {
 
   const signedUrlByPath = new Map();
   await Promise.all(paths.map(async path => {
-    const { data: signed, error: signedError } = await supabase.storage
-      .from('board-images')
-      .createSignedUrl(path, 3600);
-    if (!signedError && signed?.signedUrl) signedUrlByPath.set(path, signed.signedUrl);
+    const signedUrl = await signedStorageUrl('board-images', path);
+    if (signedUrl) signedUrlByPath.set(path, signedUrl);
   }));
 
   const itemsByBoard = new Map();

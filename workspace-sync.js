@@ -1,4 +1,4 @@
-import { getBoardIdFromUrl, getCurrentUser, supabase } from './supabase-client.js';
+import { getBoardIdFromUrl, getCurrentUser, signedStorageUrl, supabase } from './supabase-client.js';
 
 const workspace = window.gleamWorkspace;
 let user = null;
@@ -119,13 +119,7 @@ async function loadBoard(id) {
 
 async function resolveImageSource(path) {
   if (!path) return '';
-  if (path.startsWith('data:') || path.startsWith('http')) return path;
-  const { data, error } = await supabase.storage.from('board-images').createSignedUrl(path, 3600);
-  if (error) {
-    console.error(error);
-    return '';
-  }
-  return data.signedUrl;
+  return signedStorageUrl('board-images', path);
 }
 
 function scheduleSave() {
@@ -156,15 +150,6 @@ async function saveBoard() {
     boardId = data.id;
     window.history.replaceState({}, '', `workspace.html?board=${boardId}`);
   } else {
-    const { error } = await supabase
-      .from('boards')
-      .update({ title, background, updated_at: now })
-      .eq('id', boardId);
-    if (error) {
-      console.error(error);
-      workspace.setSaveText('Save failed');
-      return;
-    }
   }
 
   const items = workspace.state.images
@@ -200,7 +185,40 @@ async function saveBoard() {
     }
   }
 
+  const thumbnailPath = await saveThumbnail();
+  const boardUpdate = { title, background, updated_at: now };
+  if (thumbnailPath) boardUpdate.thumbnail_path = thumbnailPath;
+
+  const { error: boardUpdateError } = await supabase
+    .from('boards')
+    .update(boardUpdate)
+    .eq('id', boardId);
+  if (boardUpdateError) {
+    console.error(boardUpdateError);
+    workspace.setSaveText('Save failed');
+    return;
+  }
+
   workspace.setSaveText('Saved to account');
+}
+
+async function saveThumbnail() {
+  if (!workspace.renderBoardCanvas || !boardId) return '';
+  try {
+    const canvas = workspace.renderBoardCanvas(0.5);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.82));
+    if (!blob) return '';
+
+    const path = `${user.id}/${boardId}.jpg`;
+    const { error } = await supabase.storage
+      .from('board-thumbnails')
+      .upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+    if (error) throw error;
+    return path;
+  } catch (error) {
+    console.error(error);
+    return '';
+  }
 }
 
 initWorkspaceSync();
