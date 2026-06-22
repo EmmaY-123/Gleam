@@ -449,6 +449,29 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
   <div class="boards-grid" id="boards-grid" aria-live="polite">
     <p class="board-date">Loading boards...</p>
   </div>
+  <script>
+    try {
+      const cached = JSON.parse(sessionStorage.getItem('gleam:boards-html') || 'null');
+      if (cached?.html) {
+        document.getElementById('boards-grid').innerHTML = cached.html;
+        document.getElementById('board-count').textContent =
+          `${cached.count} board${cached.count === 1 ? '' : 's'}`;
+      }
+      const profile = JSON.parse(localStorage.getItem('gleam:profile') || 'null');
+      if (profile?.username) {
+        document.querySelector('.avatar').textContent = profile.username.trim().slice(0, 1).toUpperCase() || 'G';
+      }
+      const avatarPath = profile?.avatar_path;
+      const cachedAvatar = avatarPath
+        ? JSON.parse(sessionStorage.getItem(`gleam:signed-url:profile-avatars:${avatarPath}`) || 'null')
+        : null;
+      if (cachedAvatar?.url && cachedAvatar.expiresAt > Date.now()) {
+        const avatar = document.querySelector('.avatar');
+        avatar.textContent = '';
+        avatar.style.backgroundImage = `url("${cachedAvatar.url}")`;
+      }
+    } catch {}
+  </script>
 </main>
 
 <!-- DELETE CONFIRM MODAL -->

@@ -84,7 +84,7 @@ export function clearGleamCache() {
 
 export function hasCachedSupabaseSession() {
   try {
-    return Object.keys(localStorage).some(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
+    return Object.keys(localStorage).some(key => key.startsWith('sb-') && key.includes('auth-token'));
   } catch {
     return false;
   }

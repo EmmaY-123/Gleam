@@ -1622,22 +1622,28 @@ function addDemoItem(color, x, y, w, h, rot) {
   createBoardImg(id, src, x, y, w, h, rot, 1, state.nextZ++);
 }
 
-// small demo arrangement on load
-addDemoItem('#C9A99A', 60,  40,  280, 210, -2);
-addDemoItem('#B8C4BB', 290, 30,  220, 170,  2);
-addDemoItem('#D4C5B5', 80,  230, 200, 155,  1);
-addDemoItem('#1C1917', 310, 210, 220, 140, -1);
+const existingBoardId = new URLSearchParams(window.location.search).get('board');
+if (existingBoardId) {
+  document.getElementById('board-name').value = 'Loading board...';
+  saveText.textContent = 'Loading...';
+} else {
+  // small demo arrangement on load
+  addDemoItem('#C9A99A', 60,  40,  280, 210, -2);
+  addDemoItem('#B8C4BB', 290, 30,  220, 170,  2);
+  addDemoItem('#D4C5B5', 80,  230, 200, 155,  1);
+  addDemoItem('#1C1917', 310, 210, 220, 140, -1);
 
-// place quote text on the dark card
-const quoteCard = board.querySelectorAll('.board-img')[3];
-if (quoteCard) {
-  quoteCard.querySelector('.img-inner').innerHTML = `
-    <div style="width:100%;height:100%;background:#1C1917;display:flex;align-items:center;justify-content:center;padding:16px;border-radius:2px;">
-      <p style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:15px;color:rgba(247,244,239,0.75);text-align:center;line-height:1.5;">slow<br>is good</p>
-    </div>
-  `;
+  // place quote text on the dark card
+  const quoteCard = board.querySelectorAll('.board-img')[3];
+  if (quoteCard) {
+    quoteCard.querySelector('.img-inner').innerHTML = `
+      <div style="width:100%;height:100%;background:#1C1917;display:flex;align-items:center;justify-content:center;padding:16px;border-radius:2px;">
+        <p style="font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:15px;color:rgba(247,244,239,0.75);text-align:center;line-height:1.5;">slow<br>is good</p>
+      </div>
+    `;
+  }
+  emptyState.classList.add('hidden');
 }
-emptyState.classList.add('hidden');
 
 window.gleamWorkspace = {
   state,

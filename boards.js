@@ -247,6 +247,16 @@ function renderBoards() {
 
   document.getElementById('board-count').textContent = `${filtered.length} board${filtered.length === 1 ? '' : 's'}`;
   document.getElementById('empty-state').style.display = filtered.length === 0 ? 'flex' : 'none';
+  cacheBoardHtml(grid.innerHTML, filtered.length);
+}
+
+function cacheBoardHtml(html, count) {
+  if (!boards.length || searchTerm) return;
+  try {
+    sessionStorage.setItem('gleam:boards-html', JSON.stringify({ html, count }));
+  } catch {
+    // This only speeds up the next paint.
+  }
 }
 
 function dateValue(value) {

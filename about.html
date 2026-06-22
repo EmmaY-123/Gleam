@@ -200,7 +200,7 @@ footer { background: var(--shell); border-top: 1px solid rgba(247,244,239,0.06);
   <script defer src="/_vercel/insights/script.js"></script>
   <script>
     try {
-      if (Object.keys(localStorage).some(key => key.startsWith('sb-') && key.endsWith('-auth-token'))) {
+      if (Object.keys(localStorage).some(key => key.startsWith('sb-') && key.includes('auth-token'))) {
         document.documentElement.classList.add('likely-signed-in');
       }
     } catch {}

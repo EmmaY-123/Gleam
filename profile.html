@@ -219,6 +219,23 @@ h1 span { color: var(--accent-dk); font-style: italic; }
     <p id="profile-message"></p>
   </section>
 </main>
+<script>
+  try {
+    const profile = JSON.parse(localStorage.getItem('gleam:profile') || 'null');
+    if (profile) {
+      document.getElementById('username').value = profile.username || '';
+      const preview = document.getElementById('avatar-preview');
+      preview.textContent = (profile.username || 'G').trim().slice(0, 1).toUpperCase() || 'G';
+      const cachedAvatar = profile.avatar_path
+        ? JSON.parse(sessionStorage.getItem(`gleam:signed-url:profile-avatars:${profile.avatar_path}`) || 'null')
+        : null;
+      if (cachedAvatar?.url && cachedAvatar.expiresAt > Date.now()) {
+        preview.textContent = '';
+        preview.style.backgroundImage = `url("${cachedAvatar.url}")`;
+      }
+    }
+  } catch {}
+</script>
 <script type="module" src="profile.js"></script>
 </body>
 </html>
