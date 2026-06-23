@@ -1,87 +1,119 @@
-# Gleam
+# Gleam - Digital Vision Boards Without the Mess
 
-Gleam is a digital vision board generator for turning personal inspiration into a polished board users can save, export, and keep close as a wallpaper.
+## Create personal vision boards online, save them to your account, and export them as laptop-ready wallpapers.
+
+Gleam is a digital vision board builder for turning personal inspiration into a finished visual board. Instead of printing photos, cutting them out, and arranging them by hand, users can upload images, place them freely on a customizable canvas, save boards to their account, and export the final board as a wallpaper or visual reminder.
 
 Live site: [https://www.gleamup.asia/](https://www.gleamup.asia/)
 
-## Why I Built This
+## Why Gleam
 
-I built Gleam because I love the idea of vision boards for visualizing goals, collecting mood references, and keeping intentions visible, but the physical process can be messy and time-consuming: finding pictures, printing them, cutting them out, and arranging them by hand.
+Vision boards are powerful because they make goals, moods, and intentions visible. The problem is that making one physically can be slow and messy: collecting images, printing them, cutting them out, arranging them, and finding a place to keep the final board.
 
-Gleam keeps the emotional ritual of making a board, but removes that friction. Users can upload photos, choose a background, freely place and resize images in the workspace, then export the finished board as something they can use as a laptop wallpaper or daily visual reminder.
+Gleam keeps the emotional ritual of vision boarding but removes the friction. It gives users a quiet digital workspace where they can collect their own images, arrange them by feeling, save their boards, and revisit them whenever they need motivation or clarity.
 
-## Current Features
+## Demo
 
-- Public homepage with product explanation, use cases, and inspiration examples
-- Dedicated workspace page for board creation
-- Local board persistence with `localStorage`
-- Image upload support for JPG, PNG, and WebP files
-- Drag, resize, rotate, and layer uploaded photos
-- Background choices: wood cork, linen, dark wall, white wall, and soft blush
-- Thin or thick photo edge styles
-- High-resolution board export
-- Basic unit tests for board logic
+A short walkthrough video is coming soon. It will show the full flow from uploading photos to arranging a board, saving it, and exporting it as a wallpaper.
 
-## Project Structure
+Design system: [docs/design/gleam-design-system.md](docs/design/gleam-design-system.md)
+
+## What You Can Do With Gleam
+
+Gleam helps users turn scattered inspiration into a finished visual board they can come back to.
+
+- Create a personal vision board from your own uploaded photos
+- Arrange images freely on a 16:9 canvas designed for laptop wallpapers
+- Resize, rotate, layer, and reposition photos until the board feels right
+- Choose from soft background styles to match the mood of the board
+- Save boards to your account and return to them later
+- Browse saved boards with visual previews
+- Customize your profile with a username and avatar
+- Export a finished board as a high-resolution image
+
+## Product Status
+
+Gleam is an early-stage working prototype. The current version supports account-based saved boards, image uploads, board editing, profile customization, and export.
+
+The product is currently focused on the core creation loop:
 
 ```txt
-index.html          Homepage
-workspace.html      Board editor workspace
-styles.css          Shared visual design and responsive layout
-app.js              Browser interaction and board editor behavior
-gleam-core.mjs      Testable core board helpers
-tests/              Node test suite
-docs/               Product specs, iteration notes, and screenshots
+Upload images -> arrange the board -> save it -> revisit or export it
 ```
 
-## Screenshots
+The next product priority is improving smoothness, polish, and the saved-board experience before expanding into more advanced features.
 
-Homepage:
+## Tech Stack
 
-![Gleam homepage](docs/screenshots/2026-06-05-homepage-workspace-split-homepage.jpg)
+- HTML
+- CSS
+- JavaScript
+- Vite
+- Supabase Auth
+- Supabase Database
+- Supabase Storage
+- Vercel
 
-Workspace:
+## Local Development
 
-![Gleam workspace](docs/screenshots/2026-06-05-homepage-workspace-split-workspace.jpg)
-
-## Product Process
-
-Design and product documentation:
-
-[Homepage + Workspace Split Case Study](docs/iterations/2026-06-05-homepage-workspace-split.md)
-
-## Run Locally
-
-Because this is a static prototype, you can open `index.html` directly in a browser.
-
-For a local server preview:
+Install dependencies:
 
 ```bash
-python3 -m http.server 4173
+npm install
 ```
 
-Then open:
+Start the local development server:
 
-```txt
-http://127.0.0.1:4173/index.html
+```bash
+npm run dev
 ```
 
-## Checks
+Run checks:
 
 ```bash
 npm run check
 npm test
 ```
 
-## Tech
+## Project Structure
 
-- HTML
-- CSS
-- Vanilla JavaScript
-- Node test runner
+```txt
+index.html              Homepage
+about.html              About page
+login.html              Authentication page
+boards.html             Saved boards page
+profile.html            Profile settings page
+workspace.html          Vision board editor
 
-## Notes
+styles.css              Shared styling
+auth-nav.js             Auth-aware navigation behavior
+supabase-client.js      Supabase client and shared data helpers
+boards.js               Saved boards logic
+profile.js              Profile settings logic
+workspace-sync.js       Workspace save/load/sync behavior
+app.js                  Workspace interaction logic
+gleam-core.mjs          Testable board helper logic
 
-This prototype currently saves boards locally in the browser. A backend would become useful for accounts, cross-device sync, shareable board links, cloud image storage, and multiple saved boards per user.
+docs/                   Public product and design documentation
+tests/                  Node test suite
+```
 
-Future scope includes AI-assisted layout, automatic background removal for uploaded photos, and mood-based generation of images, icons, stickers, and collage artifacts.
+## Known Issues
+
+- Some navigation still uses full page reloads, so small loading transitions may appear between pages.
+- Email confirmation currently uses Supabase's default email branding.
+- The saved-board experience is functional but still needs more polish around organization, filtering, and empty states.
+- The current frontend is not yet a full single-page app, which limits how smooth page-to-page transitions can feel.
+
+## Future Scope
+
+Planned directions include:
+
+- AI-assisted layout suggestions
+- Automatic background removal for uploaded images
+- Mood-based image, icon, and artifact generation
+- Board categories, favorites, and recently edited views
+- Shared boards from other users
+- Public board links
+- More export sizes for different devices
+- A React-based app architecture for smoother navigation and shared state
