@@ -298,6 +298,22 @@ body {
 #board.bg-white   { background: #F5F2ED; }
 #board.bg-blush   { background: #EADAD4; }
 
+#board.grid-active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(247,244,239,0.18) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 4px;
+  animation: grid-fade-in 0.15s ease;
+}
+@keyframes grid-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* ─── BOARD IMAGES ─── */
 .board-img {
   position: absolute;
@@ -1167,9 +1183,18 @@ function selectImg(id) {
 }
 
 // ── DRAG ──
+function isAlignmentGridOn() {
+  try {
+    return localStorage.getItem('gleam_alignment_grid') === 'true';
+  } catch {
+    return false;
+  }
+}
+
 function startDrag(e, imgData) {
   const startX = e.clientX - imgData.x;
   const startY = e.clientY - imgData.y;
+  if (isAlignmentGridOn()) board.classList.add('grid-active');
   function onMove(e) {
     imgData.x = e.clientX - startX;
     imgData.y = e.clientY - startY;
@@ -1178,6 +1203,7 @@ function startDrag(e, imgData) {
     triggerSave();
   }
   function onUp() {
+    board.classList.remove('grid-active');
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
   }
@@ -1190,6 +1216,7 @@ function startResize(e, imgData) {
   e.preventDefault();
   const startX = e.clientX, startW = imgData.w, startH = imgData.h;
   const ratio = startW / startH;
+  if (isAlignmentGridOn()) board.classList.add('grid-active');
   function onMove(e) {
     const dx = e.clientX - startX;
     imgData.w = Math.max(60, startW + dx);
@@ -1200,6 +1227,7 @@ function startResize(e, imgData) {
     triggerSave();
   }
   function onUp() {
+    board.classList.remove('grid-active');
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
   }
@@ -1474,6 +1502,15 @@ function setBackground(background) {
   });
 }
 
+function applyPreferredBackground() {
+  try {
+    const savedBg = localStorage.getItem('gleam_default_bg');
+    if (savedBg && !existingBoardId) setBackground(`bg-${savedBg}`);
+  } catch {
+    // Preference is optional; the cork default is fine.
+  }
+}
+
 function getBoardBackground() {
   if (board.classList.contains('bg-linen')) return '#E8E0D4';
   if (board.classList.contains('bg-dark')) return '#141210';
@@ -1627,6 +1664,7 @@ if (existingBoardId) {
   document.getElementById('board-name').value = 'Loading board...';
   saveText.textContent = 'Loading...';
 } else {
+  applyPreferredBackground();
   // small demo arrangement on load
   addDemoItem('#C9A99A', 60,  40,  280, 210, -2);
   addDemoItem('#B8C4BB', 290, 30,  220, 170,  2);
