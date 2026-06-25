@@ -185,9 +185,13 @@ async function saveBoard() {
     }
   }
 
-  const thumbnailPath = await saveThumbnail();
   const boardUpdate = { title, background, updated_at: now };
-  if (thumbnailPath) boardUpdate.thumbnail_path = thumbnailPath;
+  if (items.length) {
+    const thumbnailPath = await saveThumbnail();
+    if (thumbnailPath) boardUpdate.thumbnail_path = thumbnailPath;
+  } else {
+    boardUpdate.thumbnail_path = null;
+  }
 
   const { error: boardUpdateError } = await supabase
     .from('boards')
@@ -205,6 +209,7 @@ async function saveBoard() {
 async function saveThumbnail() {
   if (!workspace.renderBoardCanvas || !boardId) return '';
   try {
+    await waitForBoardImages();
     const canvas = workspace.renderBoardCanvas(0.5);
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.82));
     if (!blob) return '';
@@ -219,6 +224,21 @@ async function saveThumbnail() {
     console.error(error);
     return '';
   }
+}
+
+function waitForBoardImages() {
+  const images = [...workspace.board.querySelectorAll('.board-img img')];
+  const pending = images
+    .filter(image => !image.complete || !image.naturalWidth)
+    .map(image => new Promise(resolve => {
+      const done = () => resolve();
+      image.addEventListener('load', done, { once: true });
+      image.addEventListener('error', done, { once: true });
+    }));
+  return Promise.race([
+    Promise.all(pending),
+    new Promise(resolve => setTimeout(resolve, 1200)),
+  ]);
 }
 
 initWorkspaceSync();

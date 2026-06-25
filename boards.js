@@ -42,9 +42,11 @@ function renderCachedShell() {
 function boardCard(board) {
   const updated = new Date(board.updated_at || board.created_at);
   const label = Number.isNaN(updated.getTime()) ? 'Saved' : `Edited ${updated.toLocaleDateString()}`;
-  const thumbnail = board.thumbnailSrc
-    ? `<img class="board-thumbnail" src="${escapeAttr(board.thumbnailSrc)}" alt="">`
-    : previewItems(board);
+  const thumbnail = board.items?.length
+    ? previewItems(board)
+    : board.thumbnailSrc
+      ? `<img class="board-thumbnail" src="${escapeAttr(board.thumbnailSrc)}" alt="">`
+      : previewItems(board);
   return `
     <div class="board-card" data-id="${board.id}" data-name="${escapeHtml(board.title)}" data-type="saved" data-date="${board.updated_at || board.created_at}">
       <div class="board-preview ${previewClass(board.background)}">
@@ -83,7 +85,10 @@ function previewItems(board) {
     const rotation = Number(item.rotation || 0);
     const opacity = Number(item.opacity ?? 1);
     const zIndex = Math.min(Number(item.z_index || 1), 100);
-    const src = item.previewSrc || item.image_path || '';
+    const directSrc = item.image_path?.startsWith('data:') || item.image_path?.startsWith('http')
+      ? item.image_path
+      : '';
+    const src = item.previewSrc || directSrc;
     const fallback = colorForPath(src);
     const image = src ? `<img src="${escapeAttr(src)}" alt="">` : '';
 
@@ -139,7 +144,7 @@ async function loadBoards() {
 
   boards = data || [];
   await attachThumbnails();
-  await attachBoardItemsForMissingThumbnails();
+  await attachBoardItems();
   renderBoards();
   cacheBoards(boards.map(board => ({
     id: board.id,
@@ -189,9 +194,9 @@ async function attachThumbnails() {
   }));
 }
 
-async function attachBoardItemsForMissingThumbnails() {
+async function attachBoardItems() {
   if (!boards.length) return;
-  const boardIds = boards.filter(board => !board.thumbnailSrc).map(board => board.id);
+  const boardIds = boards.map(board => board.id);
   if (!boardIds.length) return;
 
   const { data, error } = await supabase
