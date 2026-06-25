@@ -1,6 +1,7 @@
 import {
   cacheProfile,
   clearGleamCache,
+  getCurrentSession,
   getCachedProfile,
   getCurrentUser,
   getUserProfile,
@@ -349,42 +350,33 @@ async function saveSettings(kind) {
   }
 }
 
-async function removeStorageFolder(bucket, folder) {
-  const { data, error } = await supabase.storage.from(bucket).list(folder, { limit: 1000 });
-  if (error || !data?.length) return;
-  const paths = data.map(file => `${folder}/${file.name}`);
-  await supabase.storage.from(bucket).remove(paths);
-}
-
-async function deleteGleamData() {
+async function deleteGleamAccount() {
   if (!currentUser) return;
-  const confirmed = window.confirm('Delete your saved Gleam boards, uploads, thumbnails, and profile data? This cannot be undone.');
+  const confirmed = window.confirm('Delete your Gleam account, saved boards, uploads, thumbnails, and profile data? This cannot be undone.');
   if (!confirmed) return;
 
   const button = $('#delete-account');
   const restore = setButtonLoading(button, 'Deleting...');
-  setDeleteMessage('Deleting your Gleam data...');
+  setDeleteMessage('Deleting your Gleam account...');
 
   try {
-    await Promise.all([
-      removeStorageFolder('profile-avatars', currentUser.id),
-      removeStorageFolder('board-images', currentUser.id),
-      removeStorageFolder('board-thumbnails', currentUser.id),
-    ]);
+    const session = await getCurrentSession();
+    if (!session?.access_token) throw new Error('You need to sign in again before deleting this account.');
 
-    const itemDelete = await supabase.from('board_items').delete().eq('user_id', currentUser.id);
-    if (itemDelete.error) throw itemDelete.error;
-    const boardDelete = await supabase.from('boards').delete().eq('user_id', currentUser.id);
-    if (boardDelete.error) throw boardDelete.error;
-    const profileDelete = await supabase.from('profiles').delete().eq('user_id', currentUser.id);
-    if (profileDelete.error) throw profileDelete.error;
+    const { error } = await supabase.functions.invoke('delete-account', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    });
+    if (error) throw error;
 
     await supabase.auth.signOut();
     clearGleamCache();
     window.location.href = 'index.html';
   } catch (error) {
     console.error(error);
-    setDeleteMessage('Could not delete all data yet. Check that the profile delete policy has been added in Supabase.', true);
+    setDeleteMessage('Could not delete the account yet. Please try again in a moment.', true);
   } finally {
     restore();
   }
@@ -428,7 +420,7 @@ $('#sign-out').addEventListener('click', async () => {
   clearGleamCache();
   window.location.href = 'index.html';
 });
-$('#delete-account').addEventListener('click', deleteGleamData);
+$('#delete-account').addEventListener('click', deleteGleamAccount);
 
 updateAllCounts();
 applySettings(readSettingsFromStorage());
