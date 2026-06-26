@@ -115,3 +115,20 @@ export function moveLayer(photos, photoId, direction) {
 export function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
+
+export function sortBoardSummaries(boards, sort = 'recent') {
+  return [...boards].sort((a, b) => {
+    const createdA = dateValue(a.created_at || a.updated_at);
+    const createdB = dateValue(b.created_at || b.updated_at);
+    const editedA = dateValue(a.updated_at || a.created_at);
+    const editedB = dateValue(b.updated_at || b.created_at);
+    if (sort === 'oldest') return createdA - createdB;
+    if (sort === 'edited') return editedB - editedA;
+    return createdB - createdA;
+  });
+}
+
+function dateValue(value) {
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? 0 : time;
+}

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gleam — My boards</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -420,19 +421,19 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
   <!-- CONTROLS -->
   <div class="filter-row">
     <div class="sort-wrap" id="sort-wrap">
-      <button class="sort-button" id="sort-button" type="button" aria-haspopup="listbox" aria-expanded="false" onclick="toggleSortMenu()">
+      <button class="sort-button" id="sort-button" type="button" aria-haspopup="listbox" aria-expanded="false">
         <span id="sort-label">Most recent</span>
         <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5"/></svg>
       </button>
       <div class="sort-menu" id="sort-menu" role="listbox" aria-label="Sort boards">
-        <button class="sort-option active" type="button" data-sort="recent" onclick="setSort('recent')" role="option" aria-selected="true">Most recent</button>
-        <button class="sort-option" type="button" data-sort="oldest" onclick="setSort('oldest')" role="option" aria-selected="false">Oldest</button>
-        <button class="sort-option" type="button" data-sort="edited" onclick="setSort('edited')" role="option" aria-selected="false">Recently edited</button>
+        <button class="sort-option active" type="button" data-sort="recent" role="option" aria-selected="true">Most recent</button>
+        <button class="sort-option" type="button" data-sort="oldest" role="option" aria-selected="false">Oldest</button>
+        <button class="sort-option" type="button" data-sort="edited" role="option" aria-selected="false">Recently edited</button>
       </div>
     </div>
     <div class="search-wrap">
       <svg viewBox="0 0 14 14"><circle cx="6" cy="6" r="4"/><line x1="9.5" y1="9.5" x2="13" y2="13"/></svg>
-      <input class="search-input" type="text" placeholder="Search boards…" oninput="filterSearch(this.value)">
+      <input class="search-input" type="text" placeholder="Search boards…">
     </div>
   </div>
 
@@ -451,12 +452,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
   </div>
   <script>
     try {
-      const cached = JSON.parse(sessionStorage.getItem('gleam:boards-html') || 'null');
-      if (cached?.html) {
-        document.getElementById('boards-grid').innerHTML = cached.html;
-        document.getElementById('board-count').textContent =
-          `${cached.count} board${cached.count === 1 ? '' : 's'}`;
-      }
+      sessionStorage.removeItem('gleam:boards-html');
       const profile = JSON.parse(localStorage.getItem('gleam:profile') || 'null');
       if (profile?.username) {
         document.querySelector('.avatar').textContent = profile.username.trim().slice(0, 1).toUpperCase() || 'G';
@@ -480,7 +476,7 @@ main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
     <h2>Delete this board?</h2>
     <p>This can't be undone. All pictures and layouts in this board will be permanently removed.</p>
     <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Keep it</button>
+      <button class="btn-cancel" id="cancel-delete-btn">Keep it</button>
       <button class="btn-delete-confirm" id="confirm-delete-btn">Yes, delete</button>
     </div>
   </div>

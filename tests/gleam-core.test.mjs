@@ -6,6 +6,7 @@ import {
   getPhotoEdge,
   getPhotoPlacement,
   moveLayer,
+  sortBoardSummaries,
   updatePhotoSize,
 } from '../gleam-core.mjs';
 
@@ -102,4 +103,28 @@ test('photo placement uses board-relative left and top coordinates', () => {
     rotation: '3deg',
     zIndex: '6',
   });
+});
+
+test('board dashboard sort orders by recent, oldest, and edited dates', () => {
+  const boards = [
+    { id: 'older-edited', created_at: '2026-01-01T00:00:00.000Z', updated_at: '2026-06-01T00:00:00.000Z' },
+    { id: 'newest-created', created_at: '2026-06-10T00:00:00.000Z', updated_at: '2026-06-10T00:00:00.000Z' },
+    { id: 'oldest-created', created_at: '2025-12-01T00:00:00.000Z', updated_at: '2026-02-01T00:00:00.000Z' },
+  ];
+
+  assert.deepEqual(sortBoardSummaries(boards, 'recent').map(board => board.id), [
+    'newest-created',
+    'older-edited',
+    'oldest-created',
+  ]);
+  assert.deepEqual(sortBoardSummaries(boards, 'oldest').map(board => board.id), [
+    'oldest-created',
+    'older-edited',
+    'newest-created',
+  ]);
+  assert.deepEqual(sortBoardSummaries(boards, 'edited').map(board => board.id), [
+    'newest-created',
+    'older-edited',
+    'oldest-created',
+  ]);
 });

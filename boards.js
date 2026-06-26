@@ -1,4 +1,7 @@
 import {
+  sortBoardSummaries,
+} from './gleam-core.mjs';
+import {
   cacheBoards,
   cacheProfile,
   getCachedBoards,
@@ -53,12 +56,12 @@ function boardCard(board) {
         ${thumbnail}
         <div class="board-overlay">
           <a href="${openWorkspaceUrl(board.id)}" class="overlay-btn">Open</a>
-          <button class="overlay-btn danger" onclick="confirmDelete(event, '${board.id}')">Delete</button>
+          <button class="overlay-btn danger" data-delete-board="${escapeAttr(board.id)}">Delete</button>
         </div>
       </div>
       <div class="board-meta">
         <div class="board-name-row">
-          <input class="board-name" value="${escapeHtml(board.title)}" onblur="renameBoard('${board.id}', this.value)" onclick="this.select()">
+          <input class="board-name" value="${escapeHtml(board.title)}" data-rename-board="${escapeAttr(board.id)}">
           <span class="board-badge badge-saved">Saved</span>
         </div>
         <p class="board-date">${label}</p>
@@ -236,37 +239,15 @@ async function attachBoardItems() {
 
 function renderBoards() {
   const grid = document.getElementById('boards-grid');
-  const filtered = boards
-    .filter(board => !searchTerm || board.title.toLowerCase().includes(searchTerm))
-    .sort((a, b) => {
-      const createdA = dateValue(a.created_at || a.updated_at);
-      const createdB = dateValue(b.created_at || b.updated_at);
-      const editedA = dateValue(a.updated_at || a.created_at);
-      const editedB = dateValue(b.updated_at || b.created_at);
-      if (activeSort === 'oldest') return createdA - createdB;
-      if (activeSort === 'edited') return editedB - editedA;
-      return createdB - createdA;
-    });
+  const filtered = sortBoardSummaries(
+    boards.filter(board => !searchTerm || board.title.toLowerCase().includes(searchTerm)),
+    activeSort,
+  );
 
   grid.innerHTML = filtered.map(boardCard).join('');
 
   document.getElementById('board-count').textContent = `${filtered.length} board${filtered.length === 1 ? '' : 's'}`;
   document.getElementById('empty-state').style.display = filtered.length === 0 ? 'flex' : 'none';
-  cacheBoardHtml(grid.innerHTML, filtered.length);
-}
-
-function cacheBoardHtml(html, count) {
-  if (!boards.length || searchTerm) return;
-  try {
-    sessionStorage.setItem('gleam:boards-html', JSON.stringify({ html, count }));
-  } catch {
-    // This only speeds up the next paint.
-  }
-}
-
-function dateValue(value) {
-  const time = new Date(value).getTime();
-  return Number.isNaN(time) ? 0 : time;
 }
 
 function toggleSortMenu() {
@@ -313,9 +294,7 @@ async function renameBoard(id, title) {
   renderBoards();
 }
 
-function confirmDelete(event, id) {
-  event.preventDefault();
-  event.stopPropagation();
+function confirmDelete(id) {
   pendingDeleteId = id;
   document.getElementById('modal-overlay').classList.add('show');
 }
@@ -338,9 +317,32 @@ async function deletePendingBoard() {
 }
 
 document.getElementById('confirm-delete-btn').addEventListener('click', deletePendingBoard);
+document.getElementById('cancel-delete-btn').addEventListener('click', closeModal);
 document.getElementById('modal-overlay').addEventListener('click', event => {
   if (event.target === document.getElementById('modal-overlay')) closeModal();
 });
+document.getElementById('boards-grid').addEventListener('click', event => {
+  const deleteButton = event.target.closest('[data-delete-board]');
+  if (deleteButton) {
+    event.preventDefault();
+    event.stopPropagation();
+    confirmDelete(deleteButton.dataset.deleteBoard);
+    return;
+  }
+
+  const nameInput = event.target.closest('[data-rename-board]');
+  if (nameInput) nameInput.select();
+});
+document.getElementById('boards-grid').addEventListener('focusout', event => {
+  const nameInput = event.target.closest('[data-rename-board]');
+  if (nameInput) renameBoard(nameInput.dataset.renameBoard, nameInput.value);
+});
+document.getElementById('sort-button').addEventListener('click', toggleSortMenu);
+document.getElementById('sort-menu').addEventListener('click', event => {
+  const option = event.target.closest('[data-sort]');
+  if (option) setSort(option.dataset.sort);
+});
+document.querySelector('.search-input').addEventListener('input', event => filterSearch(event.target.value));
 document.addEventListener('click', event => {
   if (!event.target.closest('#sort-wrap')) closeSortMenu();
 });
@@ -348,11 +350,6 @@ document.addEventListener('keydown', event => {
   if (event.key === 'Escape') closeSortMenu();
 });
 
-window.setSort = setSort;
-window.toggleSortMenu = toggleSortMenu;
-window.filterSearch = filterSearch;
-window.renameBoard = renameBoard;
-window.confirmDelete = confirmDelete;
 window.closeModal = closeModal;
 
 loadBoards();

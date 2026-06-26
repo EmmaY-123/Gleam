@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test tests/gleam-core.test.mjs",
-    "check": "node --check app.js && node --check auth-nav.js && node --check boards.js && node --check login.js && node --check profile.js && node --check supabase-client.js && node --check workspace-sync.js"
+    "check": "node --check app.js && node --check auth-nav.js && node --check boards.js && node --check gleam-core.mjs && node --check login.js && node --check profile.js && node --check supabase-client.js && node --check workspace-sync.js"
   },
   "devDependencies": {
     "vite": "^8.0.16"
